@@ -1,0 +1,13 @@
+node_modules
+dist
+build
+coverage
+.vscode
+.idea
+.husky
+public
+*.d.ts
+vite.config.ts
+vite-env.d.ts
+*.config.js
+*.cjs
