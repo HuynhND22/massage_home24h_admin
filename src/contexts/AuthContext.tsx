@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
+import { setLogoutCallback } from '../utils/axiosConfig';
 
 interface AuthState {
   user: any | null;
@@ -36,28 +37,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const navigate = useNavigate();
 
+  // Đăng ký callback xử lý logout khi token hết hạn
+  useEffect(() => {
+    setLogoutCallback(() => {
+      setState({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      navigate('/login');
+    });
+  }, [navigate]);
+
   // Kiểm tra token và load user nếu đã đăng nhập
   useEffect(() => {
     const loadUser = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        setState({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
-        return;
-      }
-      
       try {
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          setState({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+          return;
+        }
+
         // Kiểm tra token có hợp lệ không
         let decoded: any;
         try {
           decoded = jwtDecode(token);
         } catch (decodeError) {
-          // Token không hợp lệ, xóa và reset trạng thái
           console.log('Invalid token format, clearing auth state');
           localStorage.removeItem('token');
           setState({
@@ -68,11 +81,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
           return;
         }
-        
+
         const currentTime = Date.now() / 1000;
-        
         if (!decoded.exp || decoded.exp < currentTime) {
-          // Token hết hạn
+          console.log('Token expired, clearing auth state');
           localStorage.removeItem('token');
           setState({
             user: null,
@@ -82,8 +94,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
           return;
         }
-        
-        // Token hợp lệ, load thông tin user
+
+        // Tạm thời set authenticated = true với token hợp lệ
+        setState({
+          user: decoded,
+          token,
+          isAuthenticated: true,
+          isLoading: true,
+        });
+
+        // Sau đó mới gọi API lấy thông tin user
         const response = await authService.getCurrentUser();
         setState({
           user: response.data,
@@ -91,15 +111,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isAuthenticated: true,
           isLoading: false,
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading user:', error);
-        localStorage.removeItem('token');
-        setState({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
+        // Chỉ xóa token nếu lỗi là 401
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          setState({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        } else {
+          // Nếu là lỗi khác (như network), giữ nguyên trạng thái
+          setState(prev => ({
+            ...prev,
+            isLoading: false
+          }));
+        }
       }
     };
     
@@ -116,15 +145,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('API response:', response);
       
       console.log('Full API response structure:', JSON.stringify(response.data, null, 2));
+    
+      let token, user;
       
-      // API trả về dữ liệu với cấu trúc: {success, message, data: {user, token}}
-      if (!response.data || !response.data.data || !response.data.data.token) {
-        console.error('API response missing token or data');
+      if (response.data.accessToken) {
+        // Cấu trúc mới
+        token = response.data.accessToken;
+        user = response.data.user;
+      } else if (response.data.data && response.data.data.token) {
+        // Cấu trúc cũ
+        token = response.data.data.token;
+        user = response.data.data.user;
+      } else {
+        console.error('API response missing token or user data');
         return false;
       }
-      
-      // Lấy token và thông tin user từ cấu trúc đúng của API
-      const { token, user } = response.data.data;
       
       // Xóa trước token cũ để tránh xung đột
       localStorage.removeItem('token');
@@ -151,6 +186,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log('Login successful, token saved:', token.substring(0, 20) + '...');
       
+      // Chuyển hướng đến trang chủ sau khi đăng nhập thành công
+      setTimeout(() => {
+        navigate('/');
+      }, 500);
+      
       return true;
     } catch (error: any) {
       console.error('Login error:', error);
@@ -167,6 +207,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Đăng xuất
   const logout = () => {
+    setLogoutCallback(null); // Hủy callback khi logout chủ động
     localStorage.removeItem('token');
     setState({
       user: null,

@@ -15,13 +15,11 @@ import {
 import { useMediaQuery } from '../hooks';
 import {
   IconDashboard,
-  IconMassage,
-  IconNote,
-  IconMessage,
-  IconSettings,
   IconLogout,
   IconUser,
-  IconBuildingStore,
+  IconCategory,
+  IconArticle,
+  IconBrandBooking,
 } from '@tabler/icons-react';
 
 import { useAuth } from '../contexts/AuthContext';
@@ -40,11 +38,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   const navItems = [
     { label: 'Dashboard', icon: <IconDashboard size={16} />, path: '/' },
-    { label: 'Dịch vụ', icon: <IconMassage size={16} />, path: '/services' },
-    { label: 'Bài viết', icon: <IconNote size={16} />, path: '/blog' },
-    { label: 'Đánh giá', icon: <IconBuildingStore size={16} />, path: '/reviews' },
-    { label: 'Tin nhắn', icon: <IconMessage size={16} />, path: '/messages' },
-    { label: 'Cài đặt', icon: <IconSettings size={16} />, path: '/settings' },
+    { label: 'Danh mục', icon: <IconCategory size={16} />, path: '/categories' },
+    { label: 'Bài viết', icon: <IconArticle size={16} />, path: '/blogs' },
+    { label: 'Dịch vụ', icon: <IconBrandBooking size={16} />, path: '/services' },
   ];
 
   return (
@@ -94,7 +90,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
               </Menu.Target>
               <Menu.Dropdown>
                 <Menu.Item leftSection={<IconUser size={14} />}>Hồ sơ</Menu.Item>
-                <Menu.Item leftSection={<IconSettings size={14} />}>Cài đặt</Menu.Item>
                 <Menu.Divider />
                 <Menu.Item color="red" leftSection={<IconLogout size={14} />} onClick={logout}>
                   Đăng xuất
@@ -132,7 +127,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           <Divider my="sm" />
           <NavLink
             label="Đăng xuất"
-            leftSection={<IconLogout size={16} />}
+            leftSection={<IconUser size={16} />}
             onClick={logout}
             style={{ borderRadius: theme.radius.sm }}
             color="red"

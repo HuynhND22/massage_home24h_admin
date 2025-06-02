@@ -4,26 +4,28 @@ import {
   SimpleGrid,
   Paper,
   Text,
-  Group,
-  ThemeIcon,
   Title,
-  Container,
-  RingProgress,
-  Center,
+  Group,
   Stack,
   Divider,
-  Loader,
+  LoadingOverlay,
+  Avatar,
+  ThemeIcon,
+  RingProgress,
+  Center,
+  Container,
+  Loader
 } from '@mantine/core';
-import { 
-  IconMassage, 
-  IconNote, 
-  IconMessage, 
-  IconEye,
+import {
+  IconMassage,
+  IconMessage,
+  IconNote
 } from '@tabler/icons-react';
 
 import { serviceService } from '../services/service.service';
 import { blogService } from '../services/blog.service';
 import { contactService } from '../services/contact.service';
+import { reviewService } from '../services/review.service';
 
 interface StatsCardProps {
   title: string;
@@ -37,29 +39,26 @@ function StatsCard({ title, value, description, icon, onClick }: StatsCardProps)
   return (
     <Paper 
       p="md" 
-      shadow="xs" 
       radius="md"
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      <Group justify="space-between">
+      <Group justify="center">
+        <Loader size="xl" />
+      </Group>
+      <Group justify="space-between" align="center">
         <div>
-          <Text c="dimmed" size="xs" tt="uppercase" fw={700}>
+          <Text size="xs">
             {title}
           </Text>
-          <Text fw={700} size="xl">
+          <Text size="xl">
             {value}
           </Text>
-          <Text c="dimmed" size="sm">
+          <Text color="dimmed" size="sm">
             {description}
           </Text>
         </div>
-        <ThemeIcon 
-          color="teal" 
-          variant="light" 
-          size={50} 
-          radius="xl"
-        >
+        <ThemeIcon size={40} radius="md" color="blue">
           {icon}
         </ThemeIcon>
       </Group>
@@ -71,45 +70,52 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    services: 0,
-    posts: 0,
-    unreadMessages: 0,
+    totalServices: 0,
+    totalPosts: 0,
     totalMessages: 0,
+    totalReviews: 0,
+    totalViews: 0,
+    unreadMessages: 0
   });
+  const [postsResponse, setPostsResponse] = useState<any>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadStats = async () => {
       try {
-        setLoading(true);
-        
-        // Fetch data in parallel
-        const [servicesRes, postsRes, contactsRes] = await Promise.all([
-          serviceService.getAllServices(),
-          blogService.getAllPosts(1, 10, undefined, false),
-          contactService.getAllContacts(1, 100)
-        ]);
-        
-        const services = servicesRes.data.data;
-        const posts = postsRes.data.data.posts;
-        const contacts = contactsRes.data.data.contacts;
-        
-        // Calculate unread messages
-        const unreadMessages = contacts.filter((contact: any) => !contact.isRead).length;
-        
+        // Lấy số lượng dịch vụ
+        const servicesResponse = await serviceService.getAllServices(1, 100);
+        const totalServices = servicesResponse.data?.length || 0;
+
+        // Lấy số lượng bài viết
+        const postsResponse = await blogService.getAllPosts(1, 100);
+        const totalPosts = postsResponse.data?.length || 0;
+        setPostsResponse(postsResponse);
+
+        // Lấy số lượng tin nhắn
+        const messagesResponse = await contactService.getAllMessages(1, 100);
+        const totalMessages = messagesResponse.data?.length || 0;
+        const unreadMessages = messagesResponse.data?.filter((m: any) => !m.is_read)?.length || 0;
+
+        // Lấy số lượng đánh giá
+        const reviewsResponse = await reviewService.getAllReviews(1, 100);
+        const totalReviews = reviewsResponse.data?.length || 0;
+
         setStats({
-          services: services.length,
-          posts: posts.length,
-          unreadMessages: unreadMessages,
-          totalMessages: contacts.length,
+          totalServices,
+          totalPosts,
+          totalMessages,
+          totalReviews,
+          totalViews: 0,
+          unreadMessages
         });
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Error loading stats:', error);
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchData();
+
+    loadStats();
   }, []);
   
   if (loading) {
@@ -127,14 +133,14 @@ export default function Dashboard() {
       <SimpleGrid cols={{ base: 1, xs: 1, sm: 2, md: 2, lg: 4 }} mb="xl">
         <StatsCard
           title="Dịch vụ"
-          value={stats.services}
+          value={stats.totalServices}
           description="Tổng số dịch vụ"
           icon={<IconMassage size={30} stroke={1.5} />}
           onClick={() => navigate('/services')}
         />
         <StatsCard
           title="Bài viết"
-          value={stats.posts}
+          value={stats.totalPosts}
           description="Tổng số bài viết blog"
           icon={<IconNote size={30} stroke={1.5} />}
           onClick={() => navigate('/blog')}
@@ -147,10 +153,11 @@ export default function Dashboard() {
           onClick={() => navigate('/messages')}
         />
         <StatsCard
-          title="Truy cập"
-          value="1,254"
-          description="Lượt truy cập trong tháng"
-          icon={<IconEye size={30} stroke={1.5} />}
+          title="Đánh giá"
+          value={stats.totalReviews}
+          description="Tổng số đánh giá"
+          icon={<IconNote size={30} stroke={1.5} />}
+          onClick={() => navigate('/reviews')}
         />
       </SimpleGrid>
       
@@ -168,7 +175,7 @@ export default function Dashboard() {
               ]}
               label={
                 <Center>
-                  <Stack gap={0} align="center">
+                  <Stack align="center">
                     <Text size="xl" fw={700}>{stats.unreadMessages}</Text>
                     <Text size="xs" c="dimmed">Chưa đọc</Text>
                   </Stack>
@@ -179,11 +186,28 @@ export default function Dashboard() {
         </Paper>
         
         <Paper p="md" shadow="xs" radius="md">
-          <Title order={3} size="h4" mb="md">Bài viết gần đây</Title>
-          {/* Placeholder for recent posts list */}
-          <Text c="dimmed" ta="center" mt={30}>
-            Đang tải dữ liệu bài viết...
-          </Text>
+          <Stack gap="md">
+            <Title order={3} size="h4" mb="md">Bài viết gần đây</Title>
+            {loading ? (
+              <LoadingOverlay visible={true} />
+            ) : (
+              postsResponse?.data?.slice(0, 3).map((post: any) => (
+                <Paper key={post.id} p="md" shadow="xs" radius="md">
+                  <Group gap="md">
+                    <Avatar size={40} radius="xl" src={post.author.avatar} />
+                    <div>
+                      <Text size="sm" fw={500}>
+                        {post.title}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {new Date(post.created_at).toLocaleDateString()}
+                      </Text>
+                    </div>
+                  </Group>
+                </Paper>
+              ))
+            )}
+          </Stack>
         </Paper>
       </SimpleGrid>
     </Container>
