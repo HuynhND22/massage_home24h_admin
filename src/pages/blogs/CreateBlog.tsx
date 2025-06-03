@@ -3,10 +3,10 @@ import { useMutation } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from '../../hooks/useCategories';
-import { blogService, IBlogCreate } from '../../services/blog.service';
+import { blogService } from '../../services/blog.service';
 import { BlogForm } from './components/BlogForm';
 import { IBlogTranslation } from '../../interfaces/blog-translation.interface';
-import { generateSlug } from '../../utils/string.utils';
+import { IBlogCreate } from '../../interfaces/blog.service.interface';
 
 export function CreateBlog() {
   const navigate = useNavigate();
@@ -42,9 +42,9 @@ export function CreateBlog() {
       // Nếu có translations thì tạo từng cái
       if (data.translations && blog.id) {
         await Promise.all(
-          data.translations
-            .filter(t => t.language && t.title && t.content)
-            .map(t => blogService.createTranslation({
+          (data.translations as Partial<IBlogTranslation>[])
+            .filter((t: Partial<IBlogTranslation>) => t.language && t.title && t.content)
+            .map((t: Partial<IBlogTranslation>) => blogService.createTranslation({
               blogId: blog.id,
               language: t.language!,
               title: t.title!,

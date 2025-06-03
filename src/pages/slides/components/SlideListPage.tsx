@@ -1,36 +1,26 @@
 import { useMemo, useState } from 'react';
-import ServiceTable from './ServiceList';
-import ServiceFilterBar from './ServiceFilterBar';
+import { SlideListPageProps } from '../../../interfaces/slide.interface';
+import SlideTable from './SlideList';
 import PaginationBar from '../../../components/PaginationBar';
 import ResultCount from '../../../components/ResultCount';
 import { Paper } from '@mantine/core';
-import { ServiceListPageProps } from '../../../interfaces/service.interface';
 
-export default function ServiceListPage({ data, categories, onEdit, onRefresh, selectedIds, setSelectedIds }: ServiceListPageProps) {
+export default function SlideListPage({ data, onEdit, onRefresh, selectedIds, setSelectedIds }: SlideListPageProps) {
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
-  // Map categoryId to name
-  const categoryMap = useMemo(() => {
-    const map: Record<string, string> = {};
-    categories.forEach((c) => { map[c.id] = c.name; });
-    return map;
-  }, [categories]);
 
   // Filter + search
   const filtered = useMemo(() => {
     let result = data;
-    if (category) result = result.filter(s => s.categoryId === category);
     if (search)
       result = result.filter(
         s =>
-          s.name?.toLowerCase().includes(search.toLowerCase()) ||
+          s.title?.toLowerCase().includes(search.toLowerCase()) ||
           s.description?.toLowerCase().includes(search.toLowerCase())
       );
     return result;
-  }, [data, search, category]);
+  }, [data, search]);
 
   // Pagination
   const paginated = useMemo(() => {
@@ -38,29 +28,13 @@ export default function ServiceListPage({ data, categories, onEdit, onRefresh, s
     return filtered.slice(start, start + pageSize);
   }, [filtered, page, pageSize]);
 
-  // Reset filter
-  const handleReset = () => {
-    setSearch('');
-    setCategory('');
-    setPage(1);
-  };
-
   return (
     <>
-      <ServiceFilterBar
-        search={search}
-        setSearch={setSearch}
-        category={category}
-        setCategory={setCategory}
-        categories={categories}
-        onReset={handleReset}
-      />
-      
+      {/* Có thể thêm filter bar nếu muốn */}
       <Paper p="md" pos="relative" mt="md">
         <ResultCount total={filtered.length} page={page} pageSize={pageSize} />
-        <ServiceTable
+        <SlideTable
           data={paginated}
-          categoryMap={categoryMap}
           onEdit={onEdit}
           onRefresh={onRefresh}
           selectedIds={selectedIds}

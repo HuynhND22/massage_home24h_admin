@@ -50,7 +50,7 @@ export function ImageUpload({ onChange, uploading, initialImage }: ImageUploadPr
         </Center>
       ) : preview ? (
         <div style={{ position: 'relative', display: 'inline-block' }}>
-          <Image src={preview} alt="Preview" width={180} radius="md" />
+          <Image src={preview} alt="Preview" width={180} radius="md" mt="md" />
           <Button size="xs" color="red" mt="xs" onClick={handleRemove} style={{ position: 'absolute', top: 0, right: 0 }}>
             Xóa
           </Button>

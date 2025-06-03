@@ -1,32 +1,30 @@
 import { ActionIcon, Group, Tooltip } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { CategoryActionsProps } from '../../../interfaces/category.interface';
-import { categoryService } from '../../../services/category.service';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { useMediaQuery } from '@mantine/hooks';
+import { ISlide, SlideActionsProps } from '../../../interfaces/slide.interface';
+import { slideService } from '../../../services/slide.service';
 
-export function CategoryActions({ category, onEdit, onRefresh }: CategoryActionsProps) {
-  const isMobile = useMediaQuery('(max-width: 600px)');
+export function SlideActions({ slide, onEdit, onRefresh }: SlideActionsProps) {
   const handleDelete = () => {
     modals.openConfirmModal({
       title: 'Xác nhận xóa',
-      children: 'Bạn có chắc chắn muốn xóa danh mục này?',
+      children: 'Bạn có chắc chắn muốn xóa banner này?',
       labels: { confirm: 'Xóa', cancel: 'Hủy' },
       confirmProps: { color: 'red' },
       onConfirm: async () => {
         try {
-          await categoryService.delete(category.id!);
+          await slideService.delete(slide.id!);
           notifications.show({
             title: 'Thành công',
-            message: 'Đã xóa danh mục',
+            message: 'Đã xóa banner',
             color: 'green',
           });
           onRefresh();
         } catch (error) {
           notifications.show({
             title: 'Lỗi',
-            message: 'Không thể xóa danh mục',
+            message: 'Không thể xóa banner',
             color: 'red',
           });
         }
@@ -35,14 +33,14 @@ export function CategoryActions({ category, onEdit, onRefresh }: CategoryActions
   };
 
   return (
-    <Group gap={isMobile ? 4 : 'xs'}>
+    <Group gap="xs">
       <Tooltip label="Sửa">
-        <ActionIcon color="blue" onClick={() => onEdit(category)} size={isMobile ? 'md' : 'sm'}>
+        <ActionIcon color="blue" onClick={() => onEdit(slide)}>
           <IconEdit size={18} />
         </ActionIcon>
       </Tooltip>
       <Tooltip label="Xóa">
-        <ActionIcon color="red" onClick={handleDelete} size={isMobile ? 'md' : 'sm'}>
+        <ActionIcon color="red" onClick={handleDelete}>
           <IconTrash size={18} />
         </ActionIcon>
       </Tooltip>

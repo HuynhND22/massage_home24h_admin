@@ -10,18 +10,15 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { categoryService, ICategory } from '../../../services/category.service';
+import { categoryService } from '../../../services/category.service';
 import { ImageUpload } from '../../../components/ImageUpload';
-
-interface CategoryFormProps {
-  opened: boolean;
-  onClose: (refresh?: boolean) => void;
-  category: ICategory | null;
-}
+import { useMediaQuery } from '@mantine/hooks';
+import { ICategory ,CategoryFormProps } from '../../../interfaces/category.interface';
 
 export function CategoryForm({ opened, onClose, category }: CategoryFormProps) {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 600px)');
 
   const form = useForm({
     validate: {
@@ -40,6 +37,7 @@ export function CategoryForm({ opened, onClose, category }: CategoryFormProps) {
       description: category?.description || '',
       coverImage: category?.coverImage || '',
       type: category?.type || 'service',
+      imageFile: null as File | null,
     },
   });
 
@@ -47,11 +45,12 @@ export function CategoryForm({ opened, onClose, category }: CategoryFormProps) {
     try {
       setLoading(true);
 
-      const categoryData: Partial<ICategory> = {
+      const categoryData: Partial<ICategory> & { imageFile?: File } = {
         name: values.name.trim(),
         description: values.description?.trim() || '',
         type: values.type as 'blog' | 'service',
         coverImage: values.coverImage || '',
+        imageFile: values.imageFile || undefined,
       };
 
       if (category?.id) {
@@ -83,8 +82,12 @@ export function CategoryForm({ opened, onClose, category }: CategoryFormProps) {
   };
 
   const handleImageChange = (file: File | null) => {
+    form.setFieldValue('imageFile', file);
     if (file) {
       setUploading(true);
+      // Create a temporary URL for the preview
+      const imageUrl = URL.createObjectURL(file);
+      form.setFieldValue('coverImage', imageUrl);
       setUploading(false);
     }
   };
@@ -101,29 +104,36 @@ export function CategoryForm({ opened, onClose, category }: CategoryFormProps) {
             { value: 'blog', label: 'Blog' },
           ]}
           {...form.getInputProps('type')}
+          style={isMobile ? { width: '100%' } : {}}
         />
         <TextInput
           required
           label="Tên danh mục"
           placeholder="Nhập tên danh mục"
           {...form.getInputProps('name')}
+          style={isMobile ? { width: '100%' } : {}}
         />
 
         <Textarea
           label="Mô tả"
           placeholder="Nhập mô tả danh mục"
           {...form.getInputProps('description')}
+          style={isMobile ? { width: '100%' } : {}}
         />
 
-        <ImageUpload onChange={handleImageChange} uploading={uploading} />
+        <ImageUpload 
+          onChange={handleImageChange} 
+          uploading={uploading}
+          initialImage={category?.coverImage}
+        />
 
         <Switch
           label="Kích hoạt"
           {...form.getInputProps('status', { type: 'checkbox' })}
         />
 
-        <Group justify="flex-end">
-          <Button type="submit" loading={loading}>
+        <Group justify="flex-end" style={isMobile ? { flexDirection: 'column', gap: 8 } : {}}>
+          <Button type="submit" loading={loading} fullWidth={isMobile}>
             {category ? 'Cập nhật' : 'Tạo mới'}
           </Button>
         </Group>

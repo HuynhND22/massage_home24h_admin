@@ -1,29 +1,15 @@
 import { useEffect, useState } from 'react';
 import {
-  Table,
   Group,
   Text,
-  ActionIcon,
-  Menu,
-  rem,
   Button,
   Stack,
-  Pagination,
   LoadingOverlay,
-  Box,
-  Paper,
-  Image,
-  TextInput,
-  Select,
-  Switch,
   Container,
 } from '@mantine/core';
 import {
-  IconDots,
-  IconEdit,
   IconTrash,
   IconPlus,
-  IconPhoto,
 } from '@tabler/icons-react';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
@@ -37,10 +23,6 @@ export function Blogs() {
   const [blogs, setBlogs] = useState<IBlog[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const [sortBy, setSortBy] = useState<string>('createdAt');
-  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
-  const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
-  const [includeDeleted, setIncludeDeleted] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
   const [pagination, setPagination] = useState({
@@ -56,10 +38,7 @@ export function Blogs() {
       const response = await blogService.getAll({ 
         page,
         limit: pagination.itemsPerPage,
-        categoryId,
         search: search || undefined,
-        sortBy: sortBy || undefined,
-        sortOrder,
       });
       
       console.log('Blog API response:', response);
@@ -121,7 +100,7 @@ export function Blogs() {
       return;
     }
     fetchBlogs(pagination.currentPage);
-  }, [categoryId, isAuthenticated, authLoading, navigate, search, sortBy, sortOrder, includeDeleted, pagination.currentPage, pagination.itemsPerPage]);
+  }, [isAuthenticated, authLoading, navigate, search, pagination.currentPage, pagination.itemsPerPage]);
 
   const handleDelete = (id: string) => {
     modals.openConfirmModal({

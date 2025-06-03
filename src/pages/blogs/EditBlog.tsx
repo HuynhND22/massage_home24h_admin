@@ -93,13 +93,23 @@ export function EditBlog() {
         <BlogForm
           initialValues={{
             ...blog,
-            translations: translations as Partial<IBlogTranslation>[]
+            translations: (translations as Partial<IBlogTranslation>[])
           }}
           onSubmit={(values) => {
+            const safeTranslations = Array.isArray(values.translations)
+              ? values.translations.filter(
+                  (t): t is IBlogTranslation =>
+                    !!t.blogId &&
+                    ['vi', 'ko', 'ru', 'zh', 'en'].includes(t.language as any) &&
+                    !!t.title &&
+                    !!t.content
+                )
+              : undefined;
             const formData = {
               ...values,
               imageFile: values.imageFile || undefined,
-              deleteImage: !values.coverImage && !values.imageFile && !!blog?.coverImage
+              deleteImage: !values.coverImage && !values.imageFile && !!blog?.coverImage,
+              translations: safeTranslations
             };
             updateBlog(formData);
           }}

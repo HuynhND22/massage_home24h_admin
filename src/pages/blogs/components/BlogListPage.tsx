@@ -1,19 +1,10 @@
 import { useMemo, useState } from 'react';
-import { IBlog } from '../../../interfaces/blog.interface';
 import BlogTable from './BlogList';
 import BlogFilterBar from './BlogFilterBar';
 import PaginationBar from '../../../components/PaginationBar';
 import ResultCount from '../../../components/ResultCount';
 import { Paper } from '@mantine/core';
-
-interface BlogListPageProps {
-  data: IBlog[];
-  categoryOptions: { value: string; label: string }[];
-  onEdit: (blog: IBlog) => void;
-  onRefresh: () => void;
-  selectedIds: string[];
-  setSelectedIds: (ids: string[]) => void;
-}
+import { BlogListPageProps } from '../../../interfaces/blog.interface';
 
 export default function BlogListPage({ data, categoryOptions, onEdit, onRefresh, selectedIds, setSelectedIds }: BlogListPageProps) {
   const [search, setSearch] = useState('');

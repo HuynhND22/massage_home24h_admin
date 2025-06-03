@@ -1,11 +1,7 @@
 import { Box, Button, Group, Paper, Title } from '@mantine/core';
 import { IBlogTranslation } from '../../../interfaces/blog-translation.interface';
 import { BlogTranslationForm } from './BlogTranslationForm';
-
-interface BlogTranslationsProps {
-  translations: Partial<IBlogTranslation>[];
-  onChange: (translations: Partial<IBlogTranslation>[]) => void;
-}
+import { BlogTranslationsProps } from '../../../interfaces/blog-translation.interface';
 
 export function BlogTranslations({ translations, onChange }: BlogTranslationsProps) {
   const handleAdd = () => {

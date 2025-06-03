@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Container, Title, Button, Group, LoadingOverlay, Paper, Modal } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { categoryService, ICategory } from '../../services/category.service';
+import { categoryService } from '../../services/category.service';
 import { CategoryForm } from './components/CategoryForm';
 import CategoryListPage from './components/CategoryListPage';
 import { notifications } from '@mantine/notifications';
+import { ICategory } from '../../interfaces/category.interface';
 
 export function Categories() {
   const [categories, setCategories] = useState<ICategory[]>([]);

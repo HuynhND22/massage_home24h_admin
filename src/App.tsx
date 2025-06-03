@@ -13,6 +13,8 @@ import { CreateBlog } from './pages/blogs/CreateBlog';
 import { EditBlog } from './pages/blogs/EditBlog';
 import NotFound from './pages/NotFound';
 import { Services } from './pages/services/Services';
+import Slides from './pages/slides/Slides';
+import WebSettings from './pages/web-settings/WebSettings';
 
 // Auth context and hooks
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -94,6 +96,22 @@ function AppRoutes() {
         <ProtectedRoute>
           <MainLayout>
             <Services />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/slides" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <Slides />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/web-settings" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <WebSettings />
           </MainLayout>
         </ProtectedRoute>
       } />

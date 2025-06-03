@@ -4,14 +4,10 @@ import { IBlog } from '../../../interfaces/blog.interface';
 import { blogService } from '../../../services/blog.service';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-
-interface BlogActionsProps {
-  blog: IBlog;
-  onEdit: (blog: IBlog) => void;
-  onRefresh: () => void;
-}
+import { useMediaQuery } from '@mantine/hooks';
 
 export function BlogActions({ blog, onEdit, onRefresh }: BlogActionsProps) {
+  const isMobile = useMediaQuery('(max-width: 600px)');
   const handleDelete = () => {
     modals.openConfirmModal({
       title: 'Xác nhận xóa',
@@ -39,14 +35,14 @@ export function BlogActions({ blog, onEdit, onRefresh }: BlogActionsProps) {
   };
 
   return (
-    <Group gap="xs">
+    <Group gap={isMobile ? 4 : 'xs'}>
       <Tooltip label="Sửa">
-        <ActionIcon color="blue" onClick={() => onEdit(blog)}>
+        <ActionIcon color="blue" onClick={() => onEdit(blog)} size={isMobile ? 'md' : 'sm'}>
           <IconEdit size={18} />
         </ActionIcon>
       </Tooltip>
       <Tooltip label="Xóa">
-        <ActionIcon color="red" onClick={handleDelete}>
+        <ActionIcon color="red" onClick={handleDelete} size={isMobile ? 'md' : 'sm'}>
           <IconTrash size={18} />
         </ActionIcon>
       </Tooltip>

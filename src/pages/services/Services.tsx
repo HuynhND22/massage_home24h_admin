@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Container, Title, Button, Group, LoadingOverlay, Paper } from '@mantine/core'
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { serviceService, IService } from '../../services/service.service';
-import { categoryService, ICategory } from '../../services/category.service';
+import { serviceService } from '../../services/service.service';
+import { categoryService } from '../../services/category.service';
 import ServiceListPage from './components/ServiceListPage';
 import { ServiceForm } from './components/ServiceForm';
 import { notifications } from '@mantine/notifications';
+import { IService } from '../../interfaces/service.interface';
+import { ICategory } from '../../interfaces/category.interface';
 
 export function Services() {
   const [services, setServices] = useState<IService[]>([]);

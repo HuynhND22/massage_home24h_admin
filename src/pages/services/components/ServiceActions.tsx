@@ -1,16 +1,15 @@
 import { ActionIcon, Group, Tooltip } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { IService, serviceService } from '../../../services/service.service';
+import { ServiceActionsProps } from '../../../interfaces/service.interface';
+import { serviceService } from '../../../services/service.service';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
+import { useMediaQuery } from '@mantine/hooks';
 
-interface ServiceActionsProps {
-  service: IService;
-  onEdit: (service: IService) => void;
-  onRefresh: () => void;
-}
+
 
 export function ServiceActions({ service, onEdit, onRefresh }: ServiceActionsProps) {
+  const isMobile = useMediaQuery('(max-width: 600px)');
   const handleDelete = () => {
     modals.openConfirmModal({
       title: 'Xác nhận xóa',
@@ -30,14 +29,14 @@ export function ServiceActions({ service, onEdit, onRefresh }: ServiceActionsPro
   };
 
   return (
-    <Group gap="xs">
+    <Group gap={isMobile ? 4 : 'xs'}>
       <Tooltip label="Sửa">
-        <ActionIcon color="blue" onClick={() => onEdit(service)}>
+        <ActionIcon color="blue" onClick={() => onEdit(service)} size={isMobile ? 'md' : 'sm'}>
           <IconEdit size={18} />
         </ActionIcon>
       </Tooltip>
       <Tooltip label="Xóa">
-        <ActionIcon color="red" onClick={handleDelete}>
+        <ActionIcon color="red" onClick={handleDelete} size={isMobile ? 'md' : 'sm'}>
           <IconTrash size={18} />
         </ActionIcon>
       </Tooltip>

@@ -1,34 +1,30 @@
-import { Modal, TextInput, NumberInput, Button, Group, Select, Image, Text } from '@mantine/core';
+import { Modal, TextInput, NumberInput, Button, Group, Select, Image, Text, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IService, serviceService } from '../../../services/service.service';
+import { IService } from '../../../interfaces/service.interface';
+import { ICategory } from '../../../interfaces/category.interface';
+import { serviceService } from '../../../services/service.service';
 import { useEffect, useState } from 'react';
 import { ImageUpload } from '../../../components/ImageUpload';
-import { categoryService, ICategory } from '../../../services/category.service';
+import { categoryService } from '../../../services/category.service';
 import { uploadService } from '../../../services/upload.service';
-
-interface ServiceFormProps {
-  opened: boolean;
-  onClose: (refresh?: boolean) => void;
-  service: IService | null;
-}
+import { useMediaQuery } from '@mantine/hooks';
+import { ServiceFormProps } from '../../../interfaces/service.interface';
 
 export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
   const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
   const [uploading, setUploading] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 600px)');
   const form = useForm<IService>({
     initialValues: {
       name: '',
       description: '',
       duration: 60,
-      price: '0',
-      discount: '0',
       coverImage: '',
       categoryId: '',
     },
   });
 
   useEffect(() => {
-    // Lấy danh sách category khi mở form
     if (opened) {
       categoryService.getAll({ limit: 100 }).then((res) => {
         const items = res.data?.items || res.data || [];
@@ -62,9 +58,8 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
 
   const handleSubmit = async (values: IService) => {
     try {
-      // Chỉ lấy các trường hợp lệ
-      const { name, description, duration, price, discount, coverImage, categoryId } = values;
-      const payload = { name, description, duration, price, discount, coverImage, categoryId };
+      const { name, description, duration, coverImage, categoryId } = values;
+      const payload = { name, description, duration, coverImage, categoryId, price: 1, discount: 1 };
       if (service && service.id) {
         await serviceService.update(service.id, payload);
       } else {
@@ -79,23 +74,30 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
   return (
     <Modal opened={opened} onClose={() => onClose()} title={service ? 'Sửa dịch vụ' : 'Thêm dịch vụ'}>
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        <TextInput label="Tên dịch vụ" required {...form.getInputProps('name')} />
-        <TextInput label="Mô tả" mt="md" {...form.getInputProps('description')} />
-        <NumberInput label="Thời lượng (phút)" required mt="md" {...form.getInputProps('duration')} />
-        <NumberInput label="Giá" required mt="md" {...form.getInputProps('price')} />
-        <NumberInput label="Giảm giá" mt="md" {...form.getInputProps('discount')} />
-        <ImageUpload onChange={handleImageChange} uploading={uploading} />
-        <Select
-          label="Danh mục"
-          required
-          mt="md"
-          data={categories}
-          placeholder="Chọn danh mục"
-          {...form.getInputProps('categoryId')}
-        />
-        <Group justify="flex-end" mt="xl">
-          <Button type="submit">Lưu</Button>
-        </Group>
+        <Stack gap="md">
+          <TextInput label="Tên dịch vụ" required {...form.getInputProps('name')} style={isMobile ? { width: '100%' } : {}} />
+          <TextInput label="Mô tả" mt="md" {...form.getInputProps('description')} style={isMobile ? { width: '100%' } : {}} />
+          <NumberInput label="Thời lượng (phút)" required mt="md" {...form.getInputProps('duration')} style={isMobile ? { width: '100%' } : {}} />
+          <ImageUpload 
+            onChange={handleImageChange} 
+            uploading={uploading}
+            initialImage={service?.coverImage}
+          />
+          <Select
+            label="Danh mục"
+            required
+            mt="md"
+            data={categories}
+            placeholder="Chọn danh mục"
+            {...form.getInputProps('categoryId')}
+            style={isMobile ? { width: '100%' } : {}}
+          />
+          <Group justify="flex-end" mt="xl" style={isMobile ? { flexDirection: 'column', gap: 8 } : {}}>
+            <Button type="submit" fullWidth={isMobile}>
+              Lưu
+            </Button>
+          </Group>
+        </Stack>
       </form>
     </Modal>
   );

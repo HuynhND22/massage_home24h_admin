@@ -1,17 +1,9 @@
 import axiosInstance from '../utils/axiosConfig';
 import { IBlog } from '../interfaces/blog.interface';
 import { IBlogTranslation } from '../interfaces/blog-translation.interface';
+import { IBlogCreate } from '../interfaces/blog.service.interface';
 import { uploadService } from './upload.service';
-
-export interface IBlogCreate {
-  title: string;
-  description?: string;
-  content: string;
-  slug: string;
-  categoryId: string;
-  imageFile?: File;
-  coverImage?: string;
-}
+import { AxiosError } from 'axios';
 
 export const blogService = {
   // Lấy danh sách blog
@@ -61,16 +53,7 @@ export const blogService = {
   },
 
   // Tạo mới blog
-  create: async (data: {
-    title: string;
-    description?: string;
-    content: string;
-    slug: string;
-    categoryId: string;
-    imageFile?: File;
-    coverImage?: string;
-    translations?: Partial<IBlogTranslation>[];
-  }) => {
+  create: async (data: IBlogCreate & { translations?: Partial<IBlogTranslation>[] }) => {
     try {
       let coverImage = data.coverImage || '';
       
@@ -124,7 +107,7 @@ export const blogService = {
       return blog;
     } catch (error) {
       console.error('Error creating blog:', error);
-      if (error.response) {
+      if (error instanceof AxiosError && error.response) {
         console.error('Error response:', error.response.data);
       }
       throw error;

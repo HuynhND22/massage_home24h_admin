@@ -3,12 +3,7 @@ import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { IBlogTranslation } from '../../../interfaces/blog-translation.interface';
-
-interface BlogTranslationFormProps {
-  initialValues?: Partial<IBlogTranslation>;
-  onChange: (values: Partial<IBlogTranslation>) => void;
-}
+import { BlogTranslationFormProps } from '../../../interfaces/blog-translation.interface';
 
 export function BlogTranslationForm({ initialValues, onChange }: BlogTranslationFormProps) {
   const form = useForm({

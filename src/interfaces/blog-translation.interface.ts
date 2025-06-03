@@ -9,3 +9,13 @@ export interface IBlogTranslation {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface BlogTranslationFormProps {
+  initialValues?: Partial<IBlogTranslation>;
+  onChange: (values: Partial<IBlogTranslation>) => void;
+}
+
+export interface BlogTranslationsProps {
+  translations: Partial<IBlogTranslation>[];
+  onChange: (translations: Partial<IBlogTranslation>[]) => void;
+}

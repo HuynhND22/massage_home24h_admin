@@ -20,6 +20,8 @@ import {
   IconCategory,
   IconArticle,
   IconBrandBooking,
+  IconPhoto,
+  IconSettings,
 } from '@tabler/icons-react';
 
 import { useAuth } from '../contexts/AuthContext';
@@ -41,6 +43,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
     { label: 'Danh mục', icon: <IconCategory size={16} />, path: '/categories' },
     { label: 'Bài viết', icon: <IconArticle size={16} />, path: '/blogs' },
     { label: 'Dịch vụ', icon: <IconBrandBooking size={16} />, path: '/services' },
+    { label: 'Banner', icon: <IconPhoto size={16} />, path: '/slides' },
+    { label: 'Cài đặt website', icon: <IconSettings size={16} />, path: '/web-settings' },
   ];
 
   return (

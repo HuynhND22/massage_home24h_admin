@@ -1,23 +1,5 @@
 import axiosInstance from '../utils/axiosConfig';
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
-  role?: string;
-}
-
-interface UserProfile {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
+import { LoginCredentials, RegisterData, UserProfile } from '../interfaces/user.interface';
 
 export const authService = {
   // Đăng nhập
@@ -27,7 +9,7 @@ export const authService = {
   
   // Lấy thông tin người dùng hiện tại
   getCurrentUser: () => {
-    return axiosInstance.get<UserProfile>('/auth/profile');
+    return axiosInstance.get<UserProfile>('/users/profile');
   },
   
   // Đăng ký
@@ -43,18 +25,38 @@ export const authService = {
     });
   },
   
-  // Cập nhật thông tin người dùng
+  // Cập nhật thông tin người dùng hiện tại
   updateProfile: (data: Partial<UserProfile>) => {
-    return axiosInstance.put('/auth/profile', data);
+    return axiosInstance.put('/users/profile', data);
   },
   
   // Lấy danh sách người dùng (chỉ admin)
   getAllUsers: (page: number = 1, limit: number = 10) => {
-    return axiosInstance.get(`/auth/users?page=${page}&limit=${limit}`);
+    return axiosInstance.get(`/users?page=${page}&limit=${limit}`);
+  },
+  
+  // Lấy user theo ID (chỉ admin)
+  getUserById: (userId: number) => {
+    return axiosInstance.get(`/users/${userId}`);
+  },
+  
+  // Tạo user mới (chỉ admin)
+  createUser: (data: RegisterData) => {
+    return axiosInstance.post('/users', data);
+  },
+  
+  // Cập nhật user (chỉ admin)
+  updateUser: (userId: number, data: Partial<RegisterData>) => {
+    return axiosInstance.patch(`/users/${userId}`, data);
   },
   
   // Xóa người dùng (chỉ admin)
   deleteUser: (userId: number) => {
-    return axiosInstance.delete(`/auth/users/${userId}`);
+    return axiosInstance.delete(`/users/${userId}`);
+  },
+  
+  // Khôi phục user đã xóa (chỉ admin)
+  restoreUser: (userId: number) => {
+    return axiosInstance.post(`/users/${userId}/restore`);
   }
 };

@@ -1,18 +1,5 @@
 import axiosInstance from '../utils/axiosConfig';
-
-export interface IService {
-  id?: string;
-  name: string;
-  description?: string | null;
-  duration: number;
-  price: string;
-  discount: string;
-  coverImage?: string | null;
-  categoryId: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
+import { IService } from '../interfaces/service.interface';
 
 export const serviceService = {
   // Lấy danh sách dịch vụ

@@ -1,18 +1,10 @@
 import { useMemo, useState } from 'react';
-import { ICategory } from '../../../services/category.service';
 import CategoryTable from './CategoryList';
 import CategoryFilterBar from './CategoryFilterBar';
 import PaginationBar from '../../../components/PaginationBar';
 import ResultCount from '../../../components/ResultCount';
 import { Paper } from '@mantine/core';
-
-interface CategoryListPageProps {
-  data: ICategory[];
-  onEdit: (category: ICategory) => void;
-  onRefresh: () => void;
-  selectedIds: string[];
-  setSelectedIds: (ids: string[]) => void;
-}
+import { CategoryListPageProps } from '../../../interfaces/category.interface';
 
 export default function CategoryListPage({ data, onEdit, onRefresh, selectedIds, setSelectedIds }: CategoryListPageProps) {
   const [search, setSearch] = useState('');
