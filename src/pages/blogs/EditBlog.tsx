@@ -7,7 +7,6 @@ import { IBlog } from '../../interfaces/blog.interface';
 import { IBlogTranslation } from '../../interfaces/blog-translation.interface';
 import { blogService } from '../../services/blog.service';
 import { BlogForm } from './components/BlogForm';
-import { generateSlug } from '../../utils/string.utils';
 
 export function EditBlog() {
   const { id } = useParams<{ id: string }>();
@@ -96,7 +95,14 @@ export function EditBlog() {
             ...blog,
             translations: translations as Partial<IBlogTranslation>[]
           }}
-          onSubmit={updateBlog}
+          onSubmit={(values) => {
+            const formData = {
+              ...values,
+              imageFile: values.imageFile || undefined,
+              deleteImage: !values.coverImage && !values.imageFile && !!blog?.coverImage
+            };
+            updateBlog(formData);
+          }}
           categories={categories.map((c: { id: string; name: string }) => ({ value: c.id, label: c.name }))}
         />
       </Paper>

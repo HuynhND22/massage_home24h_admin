@@ -15,8 +15,30 @@ export function CreateBlog() {
 
   const { mutate: createBlog, isPending } = useMutation({
     mutationFn: async (data: IBlogCreate & { translations?: Partial<IBlogTranslation>[] }) => {
+      // Log để debug
+      console.log('Data received in mutation:', data);
+      
+      // Kiểm tra dữ liệu bắt buộc
+      if (!data.title) {
+        throw new Error('Title is required');
+      }
+      if (!data.content) {
+        throw new Error('Content is required');
+      }
+      if (!data.categoryId) {
+        throw new Error('Category is required');
+      }
+
       // Tạo blog trước
-      const blog = await blogService.create(data);
+      const blog = await blogService.create({
+        title: data.title,
+        description: data.description,
+        content: data.content,
+        slug: data.slug,
+        categoryId: data.categoryId,
+        imageFile: data.imageFile
+      });
+
       // Nếu có translations thì tạo từng cái
       if (data.translations && blog.id) {
         await Promise.all(
@@ -56,7 +78,13 @@ export function CreateBlog() {
       <Paper p="md" pos="relative">
         <LoadingOverlay visible={isPending} />
         <BlogForm
-          onSubmit={createBlog}
+          onSubmit={(values) => {
+            const formData = {
+              ...values,
+              imageFile: values.imageFile || undefined
+            };
+            createBlog(formData);
+          }}
           categories={categories.map((c: { id: string; name: string }) => ({ value: c.id, label: c.name }))}
         />
       </Paper>

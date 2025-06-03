@@ -1,16 +1,12 @@
 import axiosInstance from '../utils/axiosConfig';
 
 export const uploadService = {
-  uploadImage: async (formData: FormData, preserveFilename: boolean = false) => {
+  uploadImage: async (formData: FormData) => {
     try {
       const response = await axiosInstance.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        params: {
-          folder: 'uploads',
-          preserveFilename
-        }
       });
       return {
         data: {
@@ -26,7 +22,7 @@ export const uploadService = {
   deleteFile: async (fileUrl: string) => {
     try {
       const response = await axiosInstance.delete('/upload', {
-        data: { fileUrl } // Gửi fileUrl trong body theo yêu cầu của API
+        data: { fileUrl }
       });
       return response;
     } catch (error) {

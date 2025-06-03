@@ -16,6 +16,7 @@ import {
   TextInput,
   Select,
   Switch,
+  Container,
 } from '@mantine/core';
 import {
   IconDots,
@@ -30,6 +31,7 @@ import { blogService } from '../../services/blog.service';
 import { IBlog } from '../../interfaces/blog.interface';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import BlogListPage from './components/BlogListPage';
 
 export function Blogs() {
   const [blogs, setBlogs] = useState<IBlog[]>([]);
@@ -39,6 +41,7 @@ export function Blogs() {
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [categoryId, setCategoryId] = useState<string | undefined>(undefined);
   const [includeDeleted, setIncludeDeleted] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -150,172 +153,56 @@ export function Blogs() {
     });
   };
 
-  const rows = blogs.map((blog) => (
-    <Table.Tr key={blog.id}>
-      <Table.Td>
-        <Group gap="sm">
-          <Box w={50} h={50} style={{ overflow: 'hidden', borderRadius: '4px' }}>
-            {blog.coverImage ? (
-              <Image
-                src={blog.coverImage}
-                alt={blog.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            ) : (
-              <Paper
-                w="100%"
-                h="100%"
-                bg="gray.1"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <IconPhoto style={{ width: rem(20), height: rem(20) }} color="gray" />
-              </Paper>
-            )}
-          </Box>
-          <div>
-            <Text size="sm" fw={500}>
-              {blog.title}
-            </Text>
-            {blog.description && (
-              <Text size="xs" c="dimmed" lineClamp={2}>
-                {blog.description}
-              </Text>
-            )}
-          </div>
-        </Group>
-      </Table.Td>
-      <Table.Td>
-        <Text size="sm">
-          {new Date(blog.createdAt).toLocaleDateString('vi-VN')}
-        </Text>
-      </Table.Td>
-      <Table.Td>
-        <Group gap={0} justify="flex-end">
-          <ActionIcon
-            variant="subtle"
-            color="gray"
-            onClick={() => navigate(`/blogs/${blog.id}/edit`)}
-          >
-            <IconEdit style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
-          </ActionIcon>
-          <Menu position="bottom-end" withinPortal>
-            <Menu.Target>
-              <ActionIcon variant="subtle" color="gray">
-                <IconDots style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item
-                color="red"
-                leftSection={
-                  <IconTrash style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
-                }
-                onClick={() => handleDelete(blog.id)}
-              >
-                Xóa
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-        </Group>
-      </Table.Td>
-    </Table.Tr>
-  ));
+  const handleEdit = (blog: IBlog) => {
+    navigate(`/blogs/${blog.id}/edit`);
+  };
+
+  const handleCreate = () => {
+    navigate('/blogs/create');
+  };
+
+  const handleDeleteMany = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      setLoading(true);
+      await Promise.all(selectedIds.map(id => blogService.delete(id)));
+      notifications.show({ title: 'Thành công', message: 'Đã xóa các bài viết đã chọn', color: 'green' });
+      setSelectedIds([]);
+      fetchBlogs();
+    } catch {
+      notifications.show({ title: 'Lỗi', message: 'Không thể xóa bài viết', color: 'red' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Box p="md">
+    <Container size="xl">
       <LoadingOverlay visible={loading} />
-
       <Stack gap="md">
-        <Group justify="space-between">
-          <Group>
-            <TextInput
-              placeholder="Tìm kiếm..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  setPagination(prev => ({ ...prev, currentPage: 1 }));
-                }
-              }}
-            />
-            <Select
-              placeholder="Sắp xếp theo"
-              value={sortBy}
-              onChange={(value) => {
-                setSortBy(value || 'createdAt');
-                setPagination(prev => ({ ...prev, currentPage: 1 }));
-              }}
-              data={[
-                { value: 'createdAt', label: 'Ngày tạo' },
-                { value: 'title', label: 'Tiêu đề' },
-              ]}
-            />
-            <Select
-              placeholder="Thứ tự"
-              value={sortOrder}
-              onChange={(value) => {
-                setSortOrder(value as 'ASC' | 'DESC');
-                setPagination(prev => ({ ...prev, currentPage: 1 }));
-              }}
-              data={[
-                { value: 'DESC', label: 'Giảm dần' },
-                { value: 'ASC', label: 'Tăng dần' },
-              ]}
-            />
-            <Switch
-              label="Hiện bài đã xóa"
-              checked={includeDeleted}
-              onChange={(e) => {
-                setIncludeDeleted(e.currentTarget.checked);
-                setPagination(prev => ({ ...prev, currentPage: 1 }));
-              }}
-            />
-          </Group>
+        <Group justify="flex-end" mb="md">
           <Button
-            leftSection={<IconPlus size={14} />}
-            onClick={() => navigate('/blogs/create')}
+            leftSection={<IconTrash size={16} />}
+            color="gray"
+            variant="light"
+            disabled={selectedIds.length === 0}
+            onClick={handleDeleteMany}
           >
-            Thêm bài viết
+            Xóa hàng loạt
+          </Button>
+          <Button leftSection={<IconPlus size={16} />} color="green" variant="outline" onClick={handleCreate}>
+            Thêm mới
           </Button>
         </Group>
-
-        <Paper shadow="xs" p="md" pos="relative">
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Tiêu đề</Table.Th>
-                <Table.Th>Ngày tạo</Table.Th>
-                <Table.Th style={{ width: rem(120) }}>Thao tác</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {blogs.length === 0 ? (
-                <Table.Tr>
-                  <Table.Td colSpan={3} align="center">
-                    <Text c="dimmed">Không có dữ liệu</Text>
-                  </Table.Td>
-                </Table.Tr>
-              ) : (
-                rows
-              )}
-            </Table.Tbody>
-          </Table>
-
-          {pagination.totalPages > 1 && (
-            <Group justify="center" mt="md">
-              <Pagination
-                value={pagination.currentPage}
-                onChange={(page) => fetchBlogs(page)}
-                total={pagination.totalPages}
-              />
-            </Group>
-          )}
-        </Paper>
+        <BlogListPage
+          data={blogs}
+          categoryOptions={[]}
+          onEdit={handleEdit}
+          onRefresh={fetchBlogs}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+        />
       </Stack>
-    </Box>
+    </Container>
   );
 }

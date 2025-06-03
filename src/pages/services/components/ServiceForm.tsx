@@ -1,9 +1,10 @@
-import { Modal, TextInput, NumberInput, Button, Group, Select } from '@mantine/core';
+import { Modal, TextInput, NumberInput, Button, Group, Select, Image, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IService, serviceService } from '../../../services/service.service';
 import { useEffect, useState } from 'react';
 import { ImageUpload } from '../../../components/ImageUpload';
 import { categoryService, ICategory } from '../../../services/category.service';
+import { uploadService } from '../../../services/upload.service';
 
 interface ServiceFormProps {
   opened: boolean;
@@ -13,13 +14,14 @@ interface ServiceFormProps {
 
 export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
   const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
   const form = useForm<IService>({
     initialValues: {
       name: '',
       description: '',
       duration: 60,
-      price: 0,
-      discount: 0,
+      price: '0',
+      discount: '0',
       coverImage: '',
       categoryId: '',
     },
@@ -39,6 +41,24 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
       form.reset();
     }
   }, [service, opened]);
+
+  const handleImageChange = async (file: File | null) => {
+    if (!file) {
+      form.setFieldValue('coverImage', '');
+      return;
+    }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await uploadService.uploadImage(formData);
+      form.setFieldValue('coverImage', res.data.url);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+    setUploading(false);
+  };
 
   const handleSubmit = async (values: IService) => {
     try {
@@ -64,10 +84,7 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
         <NumberInput label="Thời lượng (phút)" required mt="md" {...form.getInputProps('duration')} />
         <NumberInput label="Giá" required mt="md" {...form.getInputProps('price')} />
         <NumberInput label="Giảm giá" mt="md" {...form.getInputProps('discount')} />
-        <ImageUpload
-          value={form.values.coverImage}
-          onChange={(url: string) => form.setFieldValue('coverImage', url)}
-        />
+        <ImageUpload onChange={handleImageChange} uploading={uploading} />
         <Select
           label="Danh mục"
           required

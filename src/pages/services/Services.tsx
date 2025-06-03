@@ -1,21 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Container, Title, Button, Group, LoadingOverlay, Paper } from '@mantine/core';
+import { Container, Title, Button, Group, LoadingOverlay, Paper } from '@mantine/core'
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { serviceService, IService } from '../../services/service.service';
 import { categoryService, ICategory } from '../../services/category.service';
-import { ServiceList } from './components/ServiceList';
+import ServiceListPage from './components/ServiceListPage';
 import { ServiceForm } from './components/ServiceForm';
+import { notifications } from '@mantine/notifications';
 
 export function Services() {
   const [services, setServices] = useState<IService[]>([]);
   const [loading, setLoading] = useState(false);
   const [openedForm, setOpenedForm] = useState(false);
   const [editingService, setEditingService] = useState<IService | null>(null);
-  const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
+  const [categories, setCategories] = useState<ICategory[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const data = await serviceService.getAll({ page: 1, limit: 10 });
+      const data = await serviceService.getAll({ page: 1, limit: 1000 });
       setServices(data.items || data);
     } catch (error) {
       // handle error
@@ -27,9 +30,7 @@ export function Services() {
     try {
       const res = await categoryService.getAll({ limit: 100 });
       const items = res.data?.items || res.data || [];
-      const map: Record<string, string> = {};
-      items.forEach((c: ICategory) => { map[c.id] = c.name; });
-      setCategoryMap(map);
+      setCategories(items);
     } catch {}
   };
 
@@ -54,16 +55,49 @@ export function Services() {
     if (refresh) fetchServices();
   };
 
+  const handleDeleteMany = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      setLoading(true);
+      await Promise.all(selectedIds.map(id => serviceService.delete(id)));
+      notifications.show({ title: 'Thành công', message: 'Đã xóa các dịch vụ đã chọn', color: 'green' });
+      setSelectedIds([]);
+      fetchServices();
+    } catch {
+      notifications.show({ title: 'Lỗi', message: 'Không thể xóa dịch vụ', color: 'red' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container size="xl">
       <Title order={2} mb="xl">Quản lý dịch vụ</Title>
       <Group justify="flex-end" mb="md">
-        <Button onClick={handleCreate}>Thêm dịch vụ</Button>
+        <Button 
+          leftSection={<IconTrash size={16} />}
+          color="gray"
+          variant="light"
+          disabled={selectedIds.length === 0}
+          onClick={handleDeleteMany}
+        >
+          Xóa hàng loạt
+        </Button>
+        <Button leftSection={<IconPlus size={16} />} color="green" variant="filled" onClick={handleCreate}>
+          Thêm mới
+        </Button>
       </Group>
-      <Paper p="md" pos="relative">
+      
         <LoadingOverlay visible={loading} />
-        <ServiceList services={services} onEdit={handleEdit} onRefresh={fetchServices} categoryMap={categoryMap} />
-      </Paper>
+        <ServiceListPage
+          data={services}
+          categories={categories}
+          onEdit={handleEdit}
+          onRefresh={fetchServices}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+        />
+      
       <ServiceForm opened={openedForm} onClose={handleFormClose} service={editingService} />
     </Container>
   );

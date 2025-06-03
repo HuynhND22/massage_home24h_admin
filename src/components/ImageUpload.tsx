@@ -1,56 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dropzone, IMAGE_MIME_TYPE, FileWithPath } from '@mantine/dropzone';
-import { Image, Group, Text, Button, Loader } from '@mantine/core';
+import { Image, Group, Text, Button, Loader, Center } from '@mantine/core';
 import { IconUpload, IconPhoto, IconX } from '@tabler/icons-react';
-import axiosInstance from '../utils/axiosConfig';
 
 interface ImageUploadProps {
-  value?: string;
-  onChange?: (url: string) => void;
+  onChange?: (file: File | null) => void;
+  uploading?: boolean;
+  initialImage?: string | null;
 }
 
-export function ImageUpload({ value, onChange }: ImageUploadProps) {
-  const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(value || null);
-
-  const handleUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    setUploading(true);
-    try {
-      const res = await axiosInstance.post(
-        'upload',
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          params: { folder: 'uploads', preserveFilename: 'true' },
-        }
-      );
-      // Giả sử API trả về { url: '...' }
-      const data = res.data;
-      if (data?.url) {
-        setPreview(data.url);
-        onChange?.(data.url);
-      }
-    } finally {
-      setUploading(false);
-    }
-  };
+export function ImageUpload({ onChange, uploading, initialImage }: ImageUploadProps) {
+  const [preview, setPreview] = useState<string | null>(initialImage || null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const onDrop = (files: FileWithPath[]) => {
     const file = files[0];
-    setPreview(URL.createObjectURL(file)); // Preview tạm thời
-    handleUpload(file);
+    if (file) {
+      setSelectedFile(file);
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
+      onChange?.(file);
+    }
   };
 
   const handleRemove = () => {
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
     setPreview(null);
-    onChange?.('');
+    setSelectedFile(null);
+    onChange?.(null);
   };
+
+  // Cleanup object URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   return (
     <div>
-      {preview ? (
+      {uploading ? (
+        <Center mih={120}>
+          <Loader size="md" />
+          <Text ml="sm">Đang upload ảnh...</Text>
+        </Center>
+      ) : preview ? (
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <Image src={preview} alt="Preview" width={180} radius="md" />
           <Button size="xs" color="red" mt="xs" onClick={handleRemove} style={{ position: 'absolute', top: 0, right: 0 }}>
@@ -62,9 +60,9 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
           onDrop={onDrop}
           accept={IMAGE_MIME_TYPE}
           maxFiles={1}
-          loading={uploading}
           multiple={false}
           maxSize={5 * 1024 ** 2}
+          mt="md"
         >
           <Group justify="center" gap="xl" mih={120} style={{ pointerEvents: 'none' }}>
             <Dropzone.Accept>
@@ -83,7 +81,6 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
               <Text size="xs" c="dimmed" inline mt={7}>
                 Chỉ nhận 1 ảnh, tối đa 5MB
               </Text>
-              {uploading && <Loader size="sm" mt={5} />}
             </div>
           </Group>
         </Dropzone>

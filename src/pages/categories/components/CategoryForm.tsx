@@ -6,22 +6,22 @@ import {
   Stack,
   Button,
   Group,
-  FileInput,
-  Image,
   Select
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { categoryService, ICategory } from '../../services/category.service';
+import { categoryService, ICategory } from '../../../services/category.service';
+import { ImageUpload } from '../../../components/ImageUpload';
 
 interface CategoryFormProps {
-  initialValues?: ICategory;
-  onSuccess: () => void;
+  opened: boolean;
+  onClose: (refresh?: boolean) => void;
+  category: ICategory | null;
 }
 
-export function CategoryForm({ initialValues, onSuccess }: CategoryFormProps) {
+export function CategoryForm({ opened, onClose, category }: CategoryFormProps) {
   const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const form = useForm({
     validate: {
@@ -36,10 +36,10 @@ export function CategoryForm({ initialValues, onSuccess }: CategoryFormProps) {
       type: (value) => !value ? 'Loại danh mục là bắt buộc' : null,
     },
     initialValues: {
-      name: initialValues?.name || '',
-      description: initialValues?.description || '',
-      coverImage: initialValues?.coverImage || '',
-      type: initialValues?.type || 'service',
+      name: category?.name || '',
+      description: category?.description || '',
+      coverImage: category?.coverImage || '',
+      type: category?.type || 'service',
     },
   });
 
@@ -47,24 +47,15 @@ export function CategoryForm({ initialValues, onSuccess }: CategoryFormProps) {
     try {
       setLoading(true);
 
-      if (imageFile && imageFile.size > 5 * 1024 * 1024) {
-        throw new Error('Kích thước ảnh không được vượt quá 5MB');
-      }
-
-      const categoryData: Partial<ICategory> & { imageFile?: File, deleteImage?: boolean } = {
+      const categoryData: Partial<ICategory> = {
         name: values.name.trim(),
         description: values.description?.trim() || '',
         type: values.type as 'blog' | 'service',
         coverImage: values.coverImage || '',
-        imageFile: imageFile || undefined
       };
 
-      if (initialValues?.id) {
-        // Nếu có ảnh cũ và đang upload ảnh mới, xóa ảnh cũ
-        if (initialValues.coverImage && imageFile) {
-          categoryData.deleteImage = true;
-        }
-        await categoryService.update(initialValues.id, categoryData);
+      if (category?.id) {
+        await categoryService.update(category.id, categoryData);
       } else {
         const response = await categoryService.create(categoryData);
         if (!response.data) {
@@ -74,11 +65,11 @@ export function CategoryForm({ initialValues, onSuccess }: CategoryFormProps) {
 
       notifications.show({
         title: 'Thành công',
-        message: initialValues ? 'Đã cập nhật danh mục' : 'Đã tạo danh mục mới',
+        message: category ? 'Đã cập nhật danh mục' : 'Đã tạo danh mục mới',
         color: 'green',
       });
 
-      onSuccess();
+      onClose(true);
     } catch (error: any) {
       console.error('Error creating/updating category:', error);
       notifications.show({
@@ -88,6 +79,13 @@ export function CategoryForm({ initialValues, onSuccess }: CategoryFormProps) {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageChange = (file: File | null) => {
+    if (file) {
+      setUploading(true);
+      setUploading(false);
     }
   };
 
@@ -117,24 +115,7 @@ export function CategoryForm({ initialValues, onSuccess }: CategoryFormProps) {
           {...form.getInputProps('description')}
         />
 
-        <FileInput
-          label="Hình ảnh"
-          placeholder="Chọn hình ảnh"
-          accept="image/*"
-          onChange={setImageFile}
-        />
-
-        {(form.values.coverImage || imageFile) && (
-          <Group mt="lg">
-            <Image
-              src={imageFile ? URL.createObjectURL(imageFile) : form.values.coverImage}
-              width={200}
-              height={120}
-              fit="contain"
-              radius="md"
-            />
-          </Group>
-        )}
+        <ImageUpload onChange={handleImageChange} uploading={uploading} />
 
         <Switch
           label="Kích hoạt"
@@ -143,10 +124,10 @@ export function CategoryForm({ initialValues, onSuccess }: CategoryFormProps) {
 
         <Group justify="flex-end">
           <Button type="submit" loading={loading}>
-            {initialValues ? 'Cập nhật' : 'Tạo mới'}
+            {category ? 'Cập nhật' : 'Tạo mới'}
           </Button>
         </Group>
       </Stack>
     </form>
   );
-}
+} 

@@ -1,8 +1,7 @@
 import axiosInstance from '../utils/axiosConfig';
 import { IBlog } from '../interfaces/blog.interface';
 import { IBlogTranslation } from '../interfaces/blog-translation.interface';
-
-import { generateSlug } from '../utils/string.utils';
+import { uploadService } from './upload.service';
 
 export interface IBlogCreate {
   title: string;
@@ -69,80 +68,144 @@ export const blogService = {
     slug: string;
     categoryId: string;
     imageFile?: File;
+    coverImage?: string;
+    translations?: Partial<IBlogTranslation>[];
   }) => {
     try {
-      console.log('Blog data received:', data);
+      let coverImage = data.coverImage || '';
+      
+      // 1. Nếu có file ảnh mới -> upload lên server
       if (data.imageFile) {
         const formData = new FormData();
-        const blogData = {
-          title: data.title.trim(),
-          description: data.description?.trim(),
-          content: data.content.trim(),
-          slug: data.slug,
-          categoryId: data.categoryId
-        };
-        
-        console.log('Sending blog data as JSON:', blogData);
-        
-        formData.append('data', JSON.stringify(blogData));
         formData.append('file', data.imageFile);
-        
-        console.log('FormData created with file');
-        
-        const response = await axiosInstance.post('/blogs', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        return response.data;
-      } else {
-        const blogData = {
-          title: data.title.trim(),
-          description: data.description?.trim(),
-          content: data.content.trim(),
-          slug: data.slug,
-          categoryId: data.categoryId
-        };
-        
-        console.log('Sending blog data without image:', blogData);
-        
-        const response = await axiosInstance.post('/blogs', blogData);
-        return response.data;
+        // 2. Gọi API upload -> trả về URL
+        const uploadResponse = await uploadService.uploadImage(formData);
+        console.log('Upload response:', uploadResponse);
+        // 3. Lấy URL từ response và gán vào coverImage
+        if (uploadResponse?.data?.url) {
+          coverImage = uploadResponse.data.url;
+          console.log('Cover image URL:', coverImage);
+        }
       }
+
+      // 4. Tạo blog với URL ảnh đã upload
+      const blogData = {
+        title: data.title?.trim() || '',
+        description: data.description?.trim() || '',
+        content: data.content?.trim() || '',
+        slug: data.slug || '',
+        categoryId: data.categoryId || '',
+        coverImage // Gửi URL ảnh
+      };
+
+      console.log('Creating blog with data:', blogData);
+      console.log('Request payload:', JSON.stringify(blogData, null, 2));
+
+      const response = await axiosInstance.post('/blogs', blogData);
+      console.log('Server response:', response.data);
+      
+      const blog = response.data;
+
+      // Xử lý translations nếu có
+      if (data.translations && blog.id) {
+        await Promise.all(
+          data.translations
+            .filter(t => t.language && t.title && t.content)
+            .map(t => blogService.createTranslation({
+              blogId: blog.id,
+              language: t.language!,
+              title: t.title!,
+              description: t.description || '',
+              content: t.content!,
+            }))
+        );
+      }
+
+      return blog;
     } catch (error) {
       console.error('Error creating blog:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
       throw error;
     }
   },
 
   // Cập nhật blog
-  update: async (id: string, data: Partial<IBlog> & { imageFile?: File, deleteImage?: boolean, translations?: Partial<IBlogTranslation>[] }) => {
-    const formData = new FormData();
-    
-    const blogData = {
-      title: data.title?.trim(),
-      description: data.description?.trim(),
-      content: data.content?.trim(),
-      categoryId: data.categoryId,
-      coverImage: data.coverImage,
-      deleteImage: data.deleteImage,
-      translations: data.translations?.map(trans => ({
-        ...trans,
-        slug: generateSlug(trans.title || '')
-      }))
-    };
+  update: async (id: string, data: Partial<IBlog> & { 
+    imageFile?: File, 
+    deleteImage?: boolean,
+    translations?: Partial<IBlogTranslation>[] 
+  }) => {
+    try {
+      let coverImage = data.coverImage;
 
-    formData.append('data', JSON.stringify(blogData));
-    if (data.imageFile) {
-      formData.append('file', data.imageFile);
-    }
-
-    const response = await axiosInstance.patch(`/blogs/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+      // 1. Xóa ảnh cũ nếu được yêu cầu
+      if (data.deleteImage && data.coverImage) {
+        await uploadService.deleteFile(data.coverImage);
+        coverImage = '';
       }
-    });
-    return response.data;
+
+      // 2. Nếu có file ảnh mới -> upload lên server
+      if (data.imageFile) {
+        const formData = new FormData();
+        formData.append('file', data.imageFile);
+        // 3. Gọi API upload -> trả về URL
+        const uploadResponse = await uploadService.uploadImage(formData);
+        console.log('Upload response:', uploadResponse);
+        // 4. Lấy URL từ response và gán vào coverImage
+        if (uploadResponse?.data?.url) {
+          coverImage = uploadResponse.data.url;
+          console.log('Cover image URL:', coverImage);
+        }
+      }
+
+      // 5. Cập nhật blog với URL ảnh mới
+      const blogData = {
+        title: data.title?.trim(),
+        description: data.description?.trim(),
+        content: data.content?.trim(),
+        categoryId: data.categoryId,
+        coverImage // Gửi URL ảnh
+      };
+
+      console.log('Updating blog with data:', blogData);
+
+      const response = await axiosInstance.patch(`/blogs/${id}`, blogData);
+      const blog = response.data;
+
+      // Xử lý translations nếu có
+      if (data.translations && Array.isArray(data.translations)) {
+        await Promise.all(
+          data.translations
+            .filter(t => t.language && t.title && t.content)
+            .map(t => {
+              if (t.id) {
+                // Update existing translation
+                return blogService.updateTranslation(t.id, {
+                  title: t.title!,
+                  description: t.description || '',
+                  content: t.content!,
+                });
+              } else {
+                // Create new translation
+                return blogService.createTranslation({
+                  blogId: id,
+                  language: t.language!,
+                  title: t.title!,
+                  description: t.description || '',
+                  content: t.content!,
+                });
+              }
+            })
+        );
+      }
+
+      return blog;
+    } catch (error) {
+      console.error('Error updating blog:', error);
+      throw error;
+    }
   },
 
   // Xóa blog (soft delete)

@@ -3,11 +3,11 @@ import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect, useState } from 'react';
 import { IBlogCreate } from '../../../services/blog.service';
 import { IBlogTranslation } from '../../../interfaces/blog-translation.interface';
 import { BlogTranslations } from './BlogTranslations';
 import { ImageUpload } from '../../../components/ImageUpload';
+import { useState } from 'react';
 
 interface BlogFormProps {
   initialValues?: Partial<IBlogCreate & { translations?: Partial<IBlogTranslation>[] }>;
@@ -16,6 +16,10 @@ interface BlogFormProps {
 }
 
 export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps) {
+  const [uploading, setUploading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>(initialValues?.coverImage || null);
+
   const form = useForm<IBlogCreate & { translations?: Partial<IBlogTranslation>[] }>({
     initialValues: {
       title: initialValues?.title || '',
@@ -23,7 +27,7 @@ export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps)
       content: initialValues?.content || '',
       slug: initialValues?.slug || '',
       categoryId: initialValues?.categoryId || '',
-      imageFile: undefined,
+      coverImage: initialValues?.coverImage || '',
       translations: initialValues?.translations || []
     },
     validate: {
@@ -41,6 +45,16 @@ export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps)
     },
   });
 
+  const handleImageChange = (file: File | null) => {
+    if (file) {
+      setImageFile(file);
+      setCoverImage(null);
+    } else {
+      setImageFile(null);
+      setCoverImage(null);
+    }
+  };
+
   const handleSubmit = form.onSubmit((values) => {
     const slug = values.title
       ?.toLowerCase()
@@ -56,26 +70,31 @@ export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps)
       description: values.description?.trim(),
       content: values.content.trim(),
       slug,
-      coverImage: initialValues?.coverImage,
+      imageFile: imageFile || undefined,
+      coverImage: imageFile ? undefined : (coverImage || initialValues?.coverImage || ''),
+      translations: values.translations || []
     });
   });
 
   return (
     <form onSubmit={handleSubmit}>
       <TextInput
-        label="Title"
+        label="Tiêu đề"
+        placeholder="Nhập tiêu đề bài viết"
         required
         {...form.getInputProps('title')}
       />
 
       <Textarea
-        label="Description"
+        label="Mô tả"
+        placeholder="Nhập mô tả ngắn cho bài viết"
         mt="md"
         {...form.getInputProps('description')}
       />
 
       <Select
-        label="Category"
+        label="Danh mục"
+        placeholder="Chọn danh mục"
         required
         mt="md"
         data={categories}
@@ -84,8 +103,9 @@ export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps)
 
       <Box mt="md">
         <ImageUpload
-          value={initialValues?.coverImage || ''}
-          onChange={(url: string) => form.setFieldValue('coverImage', url)}
+          onChange={handleImageChange}
+          uploading={uploading}
+          initialImage={coverImage || initialValues?.coverImage}
         />
       </Box>
 
@@ -128,7 +148,7 @@ export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps)
       </Box>
 
       <Group justify="flex-end" mt="xl">
-        <Button type="submit">Save</Button>
+        <Button type="submit" loading={uploading}>Lưu bài viết</Button>
       </Group>
     </form>
   );

@@ -3,26 +3,14 @@ import axiosInstance from '../utils/axiosConfig';
 export interface IService {
   id?: string;
   name: string;
-  description?: string;
+  description?: string | null;
   duration: number;
-  price: number;
-  discount?: number;
-  coverImage?: string;
+  price: string;
+  discount: string;
+  coverImage?: string | null;
   categoryId: string;
   createdAt?: string;
   updatedAt?: string;
-}
-
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  category_id: number;
-  status: 'active' | 'inactive';
-  created_at: string;
-  updated_at: string;
 }
 
 
@@ -49,25 +37,25 @@ export const serviceService = {
     const response = await axiosInstance.get('/services', { params: filteredParams });
     return response.data;
   },
-
+  
   // Lấy chi tiết dịch vụ
   getById: async (id: string, includeDeleted: boolean = false) => {
     const response = await axiosInstance.get(`/services/${id}`, { params: { includeDeleted } });
     return response.data;
   },
-
+  
   // Tạo mới dịch vụ
   create: async (data: Omit<IService, 'id' | 'createdAt' | 'updatedAt'>) => {
     const response = await axiosInstance.post('/services', data);
     return response.data;
   },
-
+  
   // Cập nhật dịch vụ
   update: async (id: string, data: Partial<Omit<IService, 'id' | 'createdAt' | 'updatedAt'>>) => {
     const response = await axiosInstance.patch(`/services/${id}`, data);
     return response.data;
   },
-
+  
   // Xóa dịch vụ
   delete: async (id: string) => {
     const response = await axiosInstance.delete(`/services/${id}`);
