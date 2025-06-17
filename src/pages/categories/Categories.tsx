@@ -18,10 +18,19 @@ export function Categories() {
     setLoading(true);
     try {
       const res = await categoryService.getAll({ limit: 100 });
-      const items = res.data?.items || res.data || [];
+      let items = [];
+      if (Array.isArray(res.data?.data)) {
+        items = res.data.data;
+      } else if (Array.isArray(res.data?.items)) {
+        items = res.data.items;
+      } else if (Array.isArray(res.data)) {
+        items = res.data;
+      } else {
+        items = [];
+      }
       setCategories(items);
     } catch (error) {
-      // handle error
+      setCategories([]);
     }
     setLoading(false);
   };

@@ -7,6 +7,7 @@ import { blogService } from '../../services/blog.service';
 import { BlogForm } from './components/BlogForm';
 import { IBlogTranslation } from '../../interfaces/blog-translation.interface';
 import { IBlogCreate } from '../../interfaces/blog.service.interface';
+import { ICategory } from '../../interfaces/category.interface';
 
 export function CreateBlog() {
   const navigate = useNavigate();
@@ -85,7 +86,10 @@ export function CreateBlog() {
             };
             createBlog(formData);
           }}
-          categories={categories.map((c: { id: string; name: string }) => ({ value: c.id, label: c.name }))}
+          categories={categories.map((c: ICategory) => ({ 
+            value: c.id, 
+            label: c.name || c.translations?.find(t => t.language === 'vi')?.name || c.translations?.[0]?.name || ''
+          }))}
         />
       </Paper>
     </Container>

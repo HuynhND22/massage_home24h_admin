@@ -1,15 +1,6 @@
 import axiosInstance from '../utils/axiosConfig';
 import { uploadService } from './upload.service';
-
-export interface ICategory {
-  id: string;
-  name: string;
-  description?: string;
-  type: 'blog' | 'service';
-  coverImage?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { ICategory } from '../interfaces/category.interface';
 
 export const categoryService = {
   getAll: async (params?: { 
@@ -38,16 +29,20 @@ export const categoryService = {
     if (data.imageFile) {
       const formData = new FormData();
       formData.append('file', data.imageFile);
-      const uploadResponse = await uploadService.uploadImage(formData, 'categories', false);
+      const uploadResponse = await uploadService.uploadImage(formData);
       coverImage = uploadResponse.data.url;
     }
 
+    // Lấy translation tiếng Việt hoặc đầu tiên
+    const viTranslation = (data.translations || []).find(t => t.language === 'vi') || data.translations?.[0] || { name: '', description: '' };
+
     // Ensure type is lowercase
     const categoryData = {
-      name: data.name,
-      description: data.description || '',
+      name: viTranslation.name,
+      description: viTranslation.description || '',
       type: data.type?.toLowerCase(),
-      coverImage
+      coverImage,
+      translations: data.translations || []
     };
     
     const response = await axiosInstance.post('/categories', categoryData);
@@ -56,28 +51,28 @@ export const categoryService = {
 
   update: async (id: string, data: Partial<ICategory> & { imageFile?: File, deleteImage?: boolean }) => {
     let coverImage = data.coverImage;
-
-    // Delete existing image if requested
     if (data.deleteImage && data.coverImage) {
       await uploadService.deleteFile(data.coverImage);
       coverImage = '';
     }
-
-    // Upload new image if provided
     if (data.imageFile) {
       const formData = new FormData();
       formData.append('file', data.imageFile);
-      const uploadResponse = await uploadService.uploadImage(formData, 'categories', false);
+      const uploadResponse = await uploadService.uploadImage(formData);
       coverImage = uploadResponse.data.url;
     }
-
-    const categoryData = {
-      name: data.name,
-      description: data.description || '',
+    // Lấy translation tiếng Việt hoặc đầu tiên
+    const viTranslation = (data.translations || []).find(t => t.language === 'vi') || data.translations?.[0] || { name: '', description: '' };
+    // Nếu không có coverImage mới, không truyền coverImage (giữ nguyên ảnh cũ)
+    const categoryData: any = {
+      name: viTranslation.name,
+      description: viTranslation.description || '',
       type: data.type?.toLowerCase(),
-      coverImage
+      translations: data.translations || []
     };
-
+    if (coverImage) {
+      categoryData.coverImage = coverImage;
+    }
     const response = await axiosInstance.patch(`/categories/${id}`, categoryData);
     return response;
   },

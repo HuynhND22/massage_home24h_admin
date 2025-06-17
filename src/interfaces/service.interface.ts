@@ -1,5 +1,11 @@
 import { ICategory } from "./category.interface";
 
+export interface ServiceTranslation {
+  language: string;
+  name: string;
+  description?: string;
+}
+
 export interface IService {
   id?: string;
   name: string;
@@ -7,8 +13,11 @@ export interface IService {
   duration: number;
   coverImage?: string | null;
   categoryId: string;
+  price?: number | string;
+  discount?: number | string;
   createdAt?: string;
   updatedAt?: string;
+  translations?: ServiceTranslation[];
 }
 
 export interface ServiceTableProps {
@@ -22,7 +31,7 @@ export interface ServiceTableProps {
 
 export interface ServiceListPageProps {
   data: IService[];
-  categories: { id: string; name: string }[];
+  categories: ICategory[];
   onEdit: (service: IService) => void;
   onRefresh: () => void;
   selectedIds: string[];

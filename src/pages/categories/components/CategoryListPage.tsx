@@ -4,21 +4,33 @@ import CategoryFilterBar from './CategoryFilterBar';
 import PaginationBar from '../../../components/PaginationBar';
 import ResultCount from '../../../components/ResultCount';
 import { Paper } from '@mantine/core';
-import { CategoryListPageProps } from '../../../interfaces/category.interface';
+import { CategoryListPageProps, ICategory, CategoryTranslation } from '../../../interfaces/category.interface';
 
 export default function CategoryListPage({ data, onEdit, onRefresh, selectedIds, setSelectedIds }: CategoryListPageProps) {
+  console.log('CategoryListPage data:', data);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  const getTranslation = (category: ICategory): CategoryTranslation => {
+    return (
+      category.translations?.find((t: CategoryTranslation) => t.language === 'vi') ||
+      category.translations?.[0] || { name: '', description: '', language: 'vi', id: '', categoryId: '', createdAt: '', updatedAt: '' }
+    );
+  };
 
   // Filter + search
   const filtered = useMemo(() => {
     let result = data;
     if (search)
       result = result.filter(
-        c =>
-          c.name?.toLowerCase().includes(search.toLowerCase()) ||
-          c.description?.toLowerCase().includes(search.toLowerCase())
+        (c: ICategory) => {
+          const t = getTranslation(c);
+          return (
+            t.name?.toLowerCase().includes(search.toLowerCase()) ||
+            t.description?.toLowerCase().includes(search.toLowerCase())
+          );
+        }
       );
     return result;
   }, [data, search]);

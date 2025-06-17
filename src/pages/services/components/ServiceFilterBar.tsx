@@ -6,7 +6,10 @@ export default function ServiceFilterBar({ search, setSearch, category, setCateg
   const isMobile = useMediaQuery('(max-width: 600px)');
   const categoryOptions = [
     { value: '', label: 'Tất cả danh mục' },
-    ...categories.map(c => ({ value: c.id, label: c.name }))
+    ...categories.map(c => ({
+      value: c.id,
+      label: c.name || c.translations?.find(t => t.language === 'vi')?.name || c.translations?.[0]?.name || ''
+    }))
   ];
   if (isMobile) {
     return (

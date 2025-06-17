@@ -1,11 +1,20 @@
+export interface CategoryTranslation {
+  language: string;
+  name: string;
+  description?: string;
+}
+
 export interface ICategory {
   id: string;
-  name: string;
+  name?: string;
+  slug?: string;
   description?: string;
   type: 'blog' | 'service';
   coverImage?: string;
   createdAt?: string;
   updatedAt?: string;
+  deletedAt?: string | null;
+  translations: CategoryTranslation[];
 }
 
 export interface CategoryTableProps {

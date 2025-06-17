@@ -21,9 +21,19 @@ export function Services() {
     setLoading(true);
     try {
       const data = await serviceService.getAll({ page: 1, limit: 1000 });
-      setServices(data.items || data);
+      let items = [];
+      if (Array.isArray(data?.data)) {
+        items = data.data;
+      } else if (Array.isArray(data?.items)) {
+        items = data.items;
+      } else if (Array.isArray(data)) {
+        items = data;
+      } else {
+        items = [];
+      }
+      setServices(items);
     } catch (error) {
-      // handle error
+      setServices([]);
     }
     setLoading(false);
   };
@@ -31,8 +41,17 @@ export function Services() {
   const fetchCategories = async () => {
     try {
       const res = await categoryService.getAll({ limit: 100 });
-      const items = res.data?.items || res.data || [];
-      setCategories(items);
+      let items = [];
+      if (Array.isArray(res.data?.data)) {
+        items = res.data.data;
+      } else if (Array.isArray(res.data?.items)) {
+        items = res.data.items;
+      } else if (Array.isArray(res.data)) {
+        items = res.data;
+      } else {
+        items = [];
+      }
+      setCategories(items.map((c: any) => ({ ...c, name: c.name || (c.translations?.[0]?.name ?? '') || '' })));
     } catch {}
   };
 

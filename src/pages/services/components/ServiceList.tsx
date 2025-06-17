@@ -3,7 +3,25 @@ import { ServiceTableProps } from '../../../interfaces/service.interface';
 import { ServiceActions } from './ServiceActions';
 import { useMediaQuery } from '@mantine/hooks';
 
+// Helper function to get service name from translations
+const getServiceName = (service: any) => {
+  if (service.name) return service.name; // Fallback to root name if exists
+  const viTranslation = service.translations?.find((t: any) => t.language === 'vi');
+  if (viTranslation?.name) return viTranslation.name;
+  const firstTranslation = service.translations?.[0];
+  if (firstTranslation?.name) return firstTranslation.name;
+  return 'Không có tên';
+};
 
+// Helper function to get service description from translations
+const getServiceDescription = (service: any) => {
+  if (service.description) return service.description; // Fallback to root description if exists
+  const viTranslation = service.translations?.find((t: any) => t.language === 'vi');
+  if (viTranslation?.description) return viTranslation.description;
+  const firstTranslation = service.translations?.[0];
+  if (firstTranslation?.description) return firstTranslation.description;
+  return '';
+};
 
 export default function ServiceTable({ data, categoryMap, onEdit, onRefresh, selectedIds, setSelectedIds }: ServiceTableProps) {
   const allIds = data.map((s) => s.id!);
@@ -70,12 +88,12 @@ export default function ServiceTable({ data, categoryMap, onEdit, onRefresh, sel
                       </Box>
                     )}
                     <div>
-                      <Text fz="sm" fw={500}>{service.name}</Text>
+                      <Text fz="sm" fw={500}>{getServiceName(service)}</Text>
                     </div>
                   </Group>
                 </Table.Td>
                 {!isMobile && <Table.Td>{categoryMap[service.categoryId] || '-'}</Table.Td>}
-                {!isMobile && <Table.Td>{service.description || '-'}</Table.Td>}
+                {!isMobile && <Table.Td>{getServiceDescription(service) || '-'}</Table.Td>}
                 {!isMobile && (
                   <Table.Td>
                     <Text fz="xs" c="dimmed">

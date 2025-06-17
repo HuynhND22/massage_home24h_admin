@@ -1,16 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { ICategory, CategoryTranslation } from '../interfaces/category.interface';
 import { categoryService } from '../services/category.service';
 
-interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
 interface CategoryResponse {
-  items: Category[];
+  items: ICategory[];
   meta: {
     currentPage: number;
     totalPages: number;
