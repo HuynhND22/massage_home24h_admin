@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Cấu hình URL API endpoint
-const baseURL = 'https://massage-home24h-api.onrender.com/api';
+// Cấu hình URL API endpoint từ biến môi trường
+const baseURL = import.meta.env.VITE_API_URL || 'https://massage-home24h-api.onrender.com/api';
 
 // Hàm xử lý logout
 let logoutCallback: (() => void) | null = null;

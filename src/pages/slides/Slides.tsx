@@ -18,7 +18,7 @@ export default function Slides() {
     setLoading(true);
     try {
       const data = await slideService.getAll({ page: 1, limit: 1000 });
-      setSlides(data.items || data);
+      setSlides(Array.isArray(data.data) ? data.data : []);
     } catch (error) {
       // handle error
     }

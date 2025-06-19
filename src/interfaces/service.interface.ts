@@ -9,10 +9,12 @@ export interface ServiceTranslation {
 export interface IService {
   id?: string;
   name: string;
+  slug?: string;
   description?: string | null;
   duration: number;
   coverImage?: string | null;
   categoryId: string;
+  category?: ICategory;
   price?: number | string;
   discount?: number | string;
   createdAt?: string;
@@ -48,7 +50,8 @@ export interface ServiceFormProps {
   opened: boolean;
   onClose: (refresh?: boolean) => void;
   service: IService | null;
-} 
+}
+
 export interface ServiceFilterBarProps {
   search: string;
   setSearch: (v: string) => void;
@@ -56,4 +59,20 @@ export interface ServiceFilterBarProps {
   setCategory: (v: string) => void;
   categories: ICategory[];
   onReset: () => void;
+}
+
+export interface IServiceDetail {
+  id?: string;
+  title: string;
+  description: string;
+  content: string;
+  language: string;
+  serviceId: string;
+}
+
+export interface ServiceDetailFormProps {
+  opened: boolean;
+  onClose: (refresh?: boolean) => void;
+  serviceId: string;
+  detail?: IServiceDetail | null;
 }

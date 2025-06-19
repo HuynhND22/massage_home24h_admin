@@ -1,13 +1,5 @@
 import axiosInstance from '../utils/axiosConfig';
-
-export interface ISlide {
-  id?: string;
-  title: string;
-  description?: string;
-  image: string;
-  role: string;
-  order?: number;
-}
+import { ISlide } from '../interfaces/slide.interface';
 
 export const slideService = {
   getAll: async (params?: { page?: number; limit?: number; role?: string }) => {
@@ -21,6 +13,8 @@ export const slideService = {
   },
 
   create: async (data: Omit<ISlide, 'id'>) => {
+    // Log payload for debugging
+    console.log('slideService.create payload:', data);
     const response = await axiosInstance.post('/slides', data);
     return response.data;
   },

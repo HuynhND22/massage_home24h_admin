@@ -10,20 +10,44 @@ export default function SlideListPage({ data, onEdit, onRefresh, selectedIds, se
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Helper function to get slide title from translations
+  const getSlideTitle = (slide: any) => {
+    const vi = slide.translations?.find((t: any) => t.language === 'vi');
+    if (vi?.title) return vi.title;
+    if (slide.translations?.[0]?.title) return slide.translations[0].title;
+    return '';
+  };
+  const getSlideDescription = (slide: any) => {
+    const vi = slide.translations?.find((t: any) => t.language === 'vi');
+    if (vi?.description) return vi.description;
+    if (slide.translations?.[0]?.description) return slide.translations[0].description;
+    return '';
+  };
+
   // Filter + search
   const filtered = useMemo(() => {
-    let result = data;
+    let result = Array.isArray(data) ? data : [];
     if (search)
       result = result.filter(
-        s =>
-          s.title?.toLowerCase().includes(search.toLowerCase()) ||
-          s.description?.toLowerCase().includes(search.toLowerCase())
+        s => {
+          const title = getSlideTitle(s);
+          const description = getSlideDescription(s);
+          return (
+            title?.toLowerCase().includes(search.toLowerCase()) ||
+            description?.toLowerCase().includes(search.toLowerCase())
+          );
+        }
       );
+    console.log('SlideListPage filtered:', result);
     return result;
   }, [data, search]);
 
   // Pagination
   const paginated = useMemo(() => {
+    if (!Array.isArray(filtered)) {
+      console.error('filtered is not an array:', filtered);
+      return [];
+    }
     const start = (page - 1) * pageSize;
     return filtered.slice(start, start + pageSize);
   }, [filtered, page, pageSize]);

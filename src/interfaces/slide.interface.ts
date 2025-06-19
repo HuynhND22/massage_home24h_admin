@@ -1,10 +1,16 @@
-export interface ISlide {
+export interface SlideTranslation {
   id?: string;
+  language: string;
   title: string;
   description?: string;
+}
+
+export interface ISlide {
+  id?: string;
   image: string;
   role: string;
   order?: number;
+  translations: SlideTranslation[];
 }
 
 export interface SlideTableProps {

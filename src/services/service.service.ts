@@ -1,5 +1,5 @@
 import axiosInstance from '../utils/axiosConfig';
-import { IService } from '../interfaces/service.interface';
+import { IService, IServiceDetail } from '../interfaces/service.interface';
 
 export const serviceService = {
   // Lấy danh sách dịch vụ
@@ -49,6 +49,21 @@ export const serviceService = {
     return response.data;
   },
 
+  // Lấy chi tiết dịch vụ theo slug
+  getDetailsBySlug: async (slug: string) => {
+    const response = await axiosInstance.get(`/services/details/${slug}`);
+    return response.data;
+  },
 
-  
+  // Tạo mới service detail
+  createServiceDetail: async (data: Omit<IServiceDetail, 'id'>) => {
+    const response = await axiosInstance.post('/services/details', data);
+    return response.data;
+  },
+
+  // Lấy danh sách service detail theo serviceId
+  getDetailsByServiceId: async (serviceId: string) => {
+    const response = await axiosInstance.get('/services/details/'+serviceId);
+    return response.data;
+  },
 };
