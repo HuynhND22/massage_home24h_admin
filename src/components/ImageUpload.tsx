@@ -11,12 +11,12 @@ interface ImageUploadProps {
 
 export function ImageUpload({ onChange, uploading, initialImage }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(initialImage || null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const onDrop = (files: FileWithPath[]) => {
     const file = files[0];
     if (file) {
-      setSelectedFile(file);
+      // setSelectedFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
       onChange?.(file);
@@ -28,7 +28,7 @@ export function ImageUpload({ onChange, uploading, initialImage }: ImageUploadPr
       URL.revokeObjectURL(preview);
     }
     setPreview(null);
-    setSelectedFile(null);
+    // setSelectedFile(null);
     onChange?.(null);
   };
 

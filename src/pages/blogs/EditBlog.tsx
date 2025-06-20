@@ -94,9 +94,11 @@ export function EditBlog() {
         <BlogForm
           initialValues={{
             ...blog,
-            translations: (translations as Partial<IBlogTranslation>[])
+            translations: (translations as IBlogTranslation[]).filter(
+              (t): t is IBlogTranslation => !!t.blogId && typeof t.blogId === 'string'
+            )
           }}
-          onSubmit={(values) => {
+          onSubmit={(values: IBlog & { imageFile?: File, translations?: Partial<IBlogTranslation>[] }) => {
             const safeTranslations = Array.isArray(values.translations)
               ? values.translations.filter(
                   (t): t is IBlogTranslation =>

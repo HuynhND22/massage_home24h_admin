@@ -1,4 +1,4 @@
-import { Modal, TextInput, NumberInput, Button, Group, Select, Stack, Tabs, Textarea } from '@mantine/core';
+import { Modal, TextInput, Button, Group, Select, Stack, Tabs, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IService, ServiceTranslation, ServiceFormProps } from '../../../interfaces/service.interface';
 import { ICategory } from '../../../interfaces/category.interface';
@@ -230,4 +230,4 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
       </form>
     </Modal>
   );
-} 
+}

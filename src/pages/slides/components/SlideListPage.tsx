@@ -56,6 +56,13 @@ export default function SlideListPage({ data, onEdit, onRefresh, selectedIds, se
     <>
       {/* Có thể thêm filter bar nếu muốn */}
       <Paper p="md" pos="relative" mt="md">
+        <input
+          type="text"
+          placeholder="Tìm kiếm tiêu đề hoặc mô tả..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ marginBottom: 16, width: '100%', padding: 8, boxSizing: 'border-box' }}
+        />
         <ResultCount total={filtered.length} page={page} pageSize={pageSize} />
         <SlideTable
           data={paginated}

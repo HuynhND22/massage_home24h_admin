@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ICategory, CategoryTranslation } from '../interfaces/category.interface';
+import { ICategory } from '../interfaces/category.interface';
 import { categoryService } from '../services/category.service';
 
 interface CategoryResponse {

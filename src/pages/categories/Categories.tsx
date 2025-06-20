@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Container, Title, Button, Group, LoadingOverlay, Paper, Modal } from '@mantine/core';
+import { Container, Title, Button, Group, LoadingOverlay, Modal } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { categoryService } from '../../services/category.service';
 import { CategoryForm } from './components/CategoryForm';

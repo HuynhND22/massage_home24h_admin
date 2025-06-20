@@ -12,12 +12,12 @@ import { useMediaQuery } from '@mantine/hooks';
 import StarterKit from '@tiptap/starter-kit';
 
 export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps) {
-  const [uploading, setUploading] = useState(false);
+  const [uploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(initialValues?.coverImage || null);
   const isMobile = useMediaQuery('(max-width: 600px)');
 
-  const form = useForm<IBlogCreate & { translations?: Partial<IBlogTranslation>[] }>({
+  const form = useForm<IBlogCreate & { translations?: IBlogTranslation[] }>({
     initialValues: {
       title: initialValues?.title || '',
       description: initialValues?.description || '',
@@ -67,9 +67,8 @@ export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps)
       description: values.description?.trim(),
       content: values.content.trim(),
       slug,
-      imageFile: imageFile || undefined,
       coverImage: imageFile ? undefined : (coverImage || initialValues?.coverImage || ''),
-      translations: values.translations || []
+      translations: (values.translations as IBlogTranslation[]) || []
     });
   });
 
@@ -144,7 +143,9 @@ export function BlogForm({ initialValues, onSubmit, categories }: BlogFormProps)
         <Box mt="xl">
           <BlogTranslations
             translations={form.values.translations || []}
-            onChange={(translations) => form.setFieldValue('translations', translations)}
+            onChange={(translations) =>
+              form.setFieldValue('translations', translations as IBlogTranslation[])
+            }
           />
         </Box>
 

@@ -150,11 +150,13 @@ const ServiceViewModal: React.FC<ServiceViewModalProps> = ({ service, opened, on
           setOpenCreateDetail(false);
           if (refresh) {
             setLoading(true);
-            serviceService.getDetailsBySlug(service.slug).then((res) => {
-              if (Array.isArray(res.details)) setDetails(res.details);
-              else if (Array.isArray(res)) setDetails(res);
-              else setDetails([]);
-            }).finally(() => setLoading(false));
+            if (service.slug) {
+              serviceService.getDetailsBySlug(service.slug).then((res) => {
+                if (Array.isArray(res.details)) setDetails(res.details);
+                else if (Array.isArray(res)) setDetails(res);
+                else setDetails([]);
+              }).finally(() => setLoading(false));
+            }
           }
         }}
         serviceId={service.id!}

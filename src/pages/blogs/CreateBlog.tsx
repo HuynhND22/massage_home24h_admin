@@ -15,7 +15,7 @@ export function CreateBlog() {
   const categories = categoriesResponse?.items || [];
 
   const { mutate: createBlog, isPending } = useMutation({
-    mutationFn: async (data: IBlogCreate & { translations?: Partial<IBlogTranslation>[] }) => {
+    mutationFn: async (data: (IBlogCreate & { translations?: Partial<IBlogTranslation>[]; imageFile?: File }) ) => {
       // Log để debug
       console.log('Data received in mutation:', data);
       
@@ -80,11 +80,20 @@ export function CreateBlog() {
         <LoadingOverlay visible={isPending} />
         <BlogForm
           onSubmit={(values) => {
+            // Ensure required fields are present and not undefined
+            if (!values.title || !values.content || !values.categoryId) {
+              notifications.show({
+                title: 'Error',
+                message: 'Title, Content, and Category are required.',
+                color: 'red',
+              });
+              return;
+            }
             const formData = {
               ...values,
-              imageFile: values.imageFile || undefined
+              imageFile: (values as any).imageFile || undefined
             };
-            createBlog(formData);
+            createBlog(formData as IBlogCreate & { translations?: Partial<IBlogTranslation>[]; imageFile?: File });
           }}
           categories={categories.map((c: ICategory) => ({ 
             value: c.id, 

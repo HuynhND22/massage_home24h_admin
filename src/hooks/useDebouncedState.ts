@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 export function useDebouncedState<T>(initialValue: T, delay = 500) {
   const [value, setValue] = useState<T>(initialValue);
   const [debouncedValue, setDebouncedValue] = useState<T>(initialValue);
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Xóa timer cũ nếu có

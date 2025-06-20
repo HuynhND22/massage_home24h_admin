@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Container, Title, Button, Group, LoadingOverlay, Paper } from '@mantine/core'
+import { Container, Title, Button, Group, LoadingOverlay } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { serviceService } from '../../services/service.service';
 import { categoryService } from '../../services/category.service';
@@ -122,4 +122,4 @@ export function Services() {
       <ServiceForm opened={openedForm} onClose={handleFormClose} service={editingService} />
     </Container>
   );
-} 
+}

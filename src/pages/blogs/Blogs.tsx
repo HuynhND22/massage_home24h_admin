@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   Group,
-  Text,
   Button,
   Stack,
   LoadingOverlay,
@@ -11,7 +10,6 @@ import {
   IconTrash,
   IconPlus,
 } from '@tabler/icons-react';
-import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { blogService } from '../../services/blog.service';
 import { IBlog } from '../../interfaces/blog.interface';
@@ -22,7 +20,7 @@ import BlogListPage from './components/BlogListPage';
 export function Blogs() {
   const [blogs, setBlogs] = useState<IBlog[]>([]);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState('');
+  // const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
   const [pagination, setPagination] = useState({
@@ -38,7 +36,7 @@ export function Blogs() {
       const response = await blogService.getAll({ 
         page,
         limit: pagination.itemsPerPage,
-        search: search || undefined,
+        // search: search || undefined,
       });
       
       console.log('Blog API response:', response);
@@ -100,37 +98,37 @@ export function Blogs() {
       return;
     }
     fetchBlogs(pagination.currentPage);
-  }, [isAuthenticated, authLoading, navigate, search, pagination.currentPage, pagination.itemsPerPage]);
+  }, [isAuthenticated, authLoading, navigate, pagination.currentPage, pagination.itemsPerPage]);
 
-  const handleDelete = (id: string) => {
-    modals.openConfirmModal({
-      title: 'Xác nhận xóa',
-      children: (
-        <Text size="sm">
-          Bạn có chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác.
-        </Text>
-      ),
-      labels: { confirm: 'Xóa', cancel: 'Hủy' },
-      confirmProps: { color: 'red' },
-      onConfirm: async () => {
-        try {
-          await blogService.delete(id);
-          notifications.show({
-            title: 'Thành công',
-            message: 'Đã xóa bài viết',
-            color: 'green',
-          });
-          fetchBlogs();
-        } catch (error) {
-          notifications.show({
-            title: 'Lỗi',
-            message: 'Không thể xóa bài viết',
-            color: 'red',
-          });
-        }
-      },
-    });
-  };
+  // const handleDelete = (id: string) => {
+  //   modals.openConfirmModal({
+  //     title: 'Xác nhận xóa',
+  //     children: (
+  //       <Text size="sm">
+  //         Bạn có chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác.
+  //       </Text>
+  //     ),
+  //     labels: { confirm: 'Xóa', cancel: 'Hủy' },
+  //     confirmProps: { color: 'red' },
+  //     onConfirm: async () => {
+  //       try {
+  //         await blogService.delete(id);
+  //         notifications.show({
+  //           title: 'Thành công',
+  //           message: 'Đã xóa bài viết',
+  //           color: 'green',
+  //         });
+  //         fetchBlogs();
+  //       } catch (error) {
+  //         notifications.show({
+  //           title: 'Lỗi',
+  //           message: 'Không thể xóa bài viết',
+  //           color: 'red',
+  //         });
+  //       }
+  //     },
+  //   });
+  // };
 
   const handleEdit = (blog: IBlog) => {
     navigate(`/blogs/${blog.id}/edit`);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TextInput, Button, Group, Stack, Box, Textarea, Image, Paper } from '@mantine/core';
+import { TextInput, Button, Group, Stack, Textarea, Paper } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IWebSettings } from '../../interfaces/webSettings.interface';
 import { webSettingsService } from '../../services/webSettings.service';
@@ -9,7 +9,7 @@ import { useMediaQuery } from '@mantine/hooks';
 
 export function WebSettingsForm() {
   const [loading, setLoading] = useState(false);
-  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoUploading] = useState(false);
   const [webSettingsId, setWebSettingsId] = useState<string | undefined>(undefined);
   const isMobile = useMediaQuery('(max-width: 600px)');
 
@@ -116,4 +116,4 @@ export function WebSettingsForm() {
       </form>
     </Paper>
   );
-} 
+}

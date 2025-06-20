@@ -1,10 +1,15 @@
 import { ActionIcon, Group, Tooltip } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { IBlog } from '../../../interfaces/blog.interface';
 import { blogService } from '../../../services/blog.service';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useMediaQuery } from '@mantine/hooks';
+
+interface BlogActionsProps {
+  blog: any; // Replace 'any' with your actual blog type if available
+  onEdit: (blog: any) => void; // Adjust type as needed
+  onRefresh: () => void;
+}
 
 export function BlogActions({ blog, onEdit, onRefresh }: BlogActionsProps) {
   const isMobile = useMediaQuery('(max-width: 600px)');
