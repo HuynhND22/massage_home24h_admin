@@ -1,6 +1,6 @@
 import { Modal, TextInput, NumberInput, Button, Group, Select, Stack, Tabs, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { ISlide, SlideTranslation, SlideFormProps } from '../../../interfaces/slide.interface';
+import { SlideTranslation, SlideFormProps } from '../../../interfaces/slide.interface';
 import { slideService } from '../../../services/slide.service';
 import { useEffect, useState } from 'react';
 import { ImageUpload } from '../../../components/ImageUpload';

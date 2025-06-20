@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import { Modal, TextInput, Textarea, Button, Group, Stack, Select } from '@mantine/core';
+import React, { useState, useEffect } from 'react';
+import { Modal, TextInput, Button, Group, Stack, Select } from '@mantine/core';
+import { RichTextEditor } from '@mantine/tiptap';
+import { useEditor } from '@tiptap/react';
+import { useEditor as useTiptapEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
 import { notifications } from '@mantine/notifications';
 import { ServiceDetailFormProps } from '../../../interfaces/service.interface';
 import { serviceService } from '../../../services/service.service';
@@ -21,7 +25,36 @@ const ServiceDetailForm: React.FC<ServiceDetailFormProps> = ({ opened, onClose, 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Tiptap editor instance cho RichTextEditor mô tả ngắn
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: form.description,
+    onUpdate: ({ editor }) => {
+      setForm((prev) => ({ ...prev, description: editor.getHTML() }));
+    },
+  });
+
+  // Tiptap editor instance cho RichTextEditor nội dung chi tiết
+  const contentEditor = useTiptapEditor({
+    extensions: [StarterKit],
+    content: form.content,
+    onUpdate: ({ editor }) => {
+      setForm((prev) => ({ ...prev, content: editor.getHTML() }));
+    },
+  });
+
+  // Đồng bộ lại content khi mở form hoặc detail thay đổi
+  useEffect(() => {
+    if (editor && opened) {
+      editor.commands.setContent(detail?.description || '');
+    }
+    if (contentEditor && opened) {
+      contentEditor.commands.setContent(detail?.content || '');
+    }
+    // eslint-disable-next-line
+  }, [opened, detail, editor, contentEditor]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -44,7 +77,12 @@ const ServiceDetailForm: React.FC<ServiceDetailFormProps> = ({ opened, onClose, 
       return;
     }
     try {
-      await serviceService.createServiceDetail({ ...form, serviceId });
+      const payload = {
+        ...form,
+        serviceId,
+      };
+      console.log('Payload gửi lên:', JSON.stringify(payload, null, 2));
+      await serviceService.createServiceDetail(payload);
       notifications.show({ title: 'Thành công', message: 'Đã tạo chi tiết dịch vụ!', color: 'green' });
       onClose(true);
     } catch (err: any) {
@@ -84,26 +122,67 @@ const ServiceDetailForm: React.FC<ServiceDetailFormProps> = ({ opened, onClose, 
             name="language"
             data={LANGS}
             value={form.language}
-            onChange={handleLangChange}
+            onChange={value => handleLangChange(value || 'vi')}
             required
             placeholder="Chọn ngôn ngữ"
           />
-          <Textarea
-            label="Mô tả ngắn"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Nhập mô tả ngắn..."
-            minRows={2}
-          />
-          <Textarea
-            label="Nội dung chi tiết"
-            name="content"
-            value={form.content}
-            onChange={handleChange}
-            placeholder="Nhập nội dung chi tiết..."
-            minRows={4}
-          />
+          <div>
+            <label style={{ fontSize: 14, fontWeight: 500, marginBottom: 4, display: 'block' }}>Mô tả ngắn</label>
+            <RichTextEditor editor={editor} style={{ minHeight: 80 }}>
+              <RichTextEditor.Toolbar sticky stickyOffset={60}>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Bold />
+                  <RichTextEditor.Italic />
+                  <RichTextEditor.Underline />
+                  <RichTextEditor.Strikethrough />
+                  <RichTextEditor.ClearFormatting />
+                  <RichTextEditor.Code />
+                </RichTextEditor.ControlsGroup>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.H1 />
+                  <RichTextEditor.H2 />
+                  <RichTextEditor.H3 />
+                  <RichTextEditor.H4 />
+                </RichTextEditor.ControlsGroup>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Blockquote />
+                  <RichTextEditor.Hr />
+                  <RichTextEditor.BulletList />
+                  <RichTextEditor.OrderedList />
+                </RichTextEditor.ControlsGroup>
+              </RichTextEditor.Toolbar>
+              <RichTextEditor.Content />
+            </RichTextEditor>
+          </div>
+          <div>
+            <label style={{ fontSize: 14, fontWeight: 500, marginBottom: 4, display: 'block' }}>Nội dung chi tiết</label>
+            <RichTextEditor editor={contentEditor} style={{ minHeight: 120 }}>
+              <RichTextEditor.Toolbar sticky stickyOffset={60}>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Bold />
+                  <RichTextEditor.Italic />
+                  <RichTextEditor.Underline />
+                  <RichTextEditor.Strikethrough />
+                  <RichTextEditor.ClearFormatting />
+                  <RichTextEditor.Code />
+                </RichTextEditor.ControlsGroup>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.H1 />
+                  <RichTextEditor.H2 />
+                  <RichTextEditor.H3 />
+                  <RichTextEditor.H4 />
+                </RichTextEditor.ControlsGroup>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Blockquote />
+                  <RichTextEditor.Hr />
+                  <RichTextEditor.BulletList />
+                  <RichTextEditor.OrderedList />
+                </RichTextEditor.ControlsGroup>
+              </RichTextEditor.Toolbar>
+              <RichTextEditor.Content />
+            </RichTextEditor>
+          </div>
+          
           {error && <div style={{ color: 'red', fontSize: 14 }}>{error}</div>}
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={handleClose} disabled={loading}>

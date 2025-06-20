@@ -118,10 +118,12 @@ const ServiceViewModal: React.FC<ServiceViewModalProps> = ({ service, opened, on
                     <Badge color="teal" variant="filled" size="sm">{LANGS[d.language] || d.language}</Badge>
                     <Text fw={600}>{d.title}</Text>
                   </Group>
-                  <Text fz="sm" c="dimmed" mb={4}>{d.description}</Text>
+                  {/* Mô tả ngắn rich text */}
+                  <div style={{ color: '#666', fontSize: 14, marginBottom: 8 }} dangerouslySetInnerHTML={{ __html: d.description }} />
                   <Group gap={6} align="flex-start">
                     <IconFileText size={16} color="#888" />
-                    <Text fz="sm">{d.content}</Text>
+                    {/* Nội dung chi tiết rich text */}
+                    <div style={{ fontSize: 14 }} dangerouslySetInnerHTML={{ __html: d.content }} />
                   </Group>
                 </Card>
               ))}

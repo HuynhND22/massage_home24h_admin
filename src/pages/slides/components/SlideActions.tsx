@@ -2,7 +2,7 @@ import { ActionIcon, Group, Tooltip } from '@mantine/core';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { ISlide, SlideActionsProps } from '../../../interfaces/slide.interface';
+import { SlideActionsProps } from '../../../interfaces/slide.interface';
 import { slideService } from '../../../services/slide.service';
 
 export function SlideActions({ slide, onEdit, onRefresh }: SlideActionsProps) {
