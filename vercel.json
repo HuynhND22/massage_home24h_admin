@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "env": {
+    "VITE_API_URL": "https://massage-home24h-api.onrender.com/api"
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://massage-home24h-api.onrender.com/api/$1" }
+  ]
+} 

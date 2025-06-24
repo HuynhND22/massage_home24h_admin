@@ -3,9 +3,11 @@ import { TextInput, PasswordInput, Button, Group, Box, Checkbox, Anchor, Text } 
 import { useForm } from '@mantine/form';
 import { IconAt, IconLock } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth(); // Sử dụng hook useAuth để lấy phương thức login
 
   const form = useForm({
     initialValues: {
@@ -22,46 +24,16 @@ export default function Login() {
   const handleSubmit = async (values: typeof form.values) => {
     setLoading(true);
     try {
-      // Sử dụng axios trực tiếp để gọi API login
-      const response = await fetch('http://localhost:5000/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password
-        }),
-      });
+      // Sử dụng phương thức login từ AuthContext
+      // Phương thức này sẽ xử lý cả cấu trúc phản hồi cũ và mới
+      // và tự động chuyển hướng sau khi đăng nhập thành công
+      const success = await login(values.email, values.password);
       
-      const data = await response.json();
-      console.log('Login API response:', data);
-      
-      if (data.success) {
-        // Lưu token vào localStorage
-        localStorage.setItem('token', data.data.token);
-        
-        // Hiển thị thông báo thành công
-        notifications.show({
-          title: 'Đăng nhập thành công',
-          message: 'Chào mừng bạn quay trở lại!',
-          color: 'teal',
-          autoClose: 2000,
-        });
-        
-        // Chuyển hướng sang trang chính
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 500);
-      } else {
-        // Hiển thị thông báo lỗi
-        notifications.show({
-          title: 'Đăng nhập thất bại',
-          message: data.message || 'Đã xảy ra lỗi khi đăng nhập',
-          color: 'red',
-        });
+      if (!success) {
         setLoading(false);
       }
+      // Nếu đăng nhập thành công, AuthContext sẽ tự động chuyển hướng
+      // và hiển thị thông báo thành công, nên không cần xử lý thêm ở đây
     } catch (error) {
       console.error('Login error:', error);
       notifications.show({

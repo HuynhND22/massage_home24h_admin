@@ -7,25 +7,18 @@ import AuthLayout from './layouts/AuthLayout';
 // Pages
 import Login from './pages/auth/Login';
 import Dashboard from './pages/Dashboard';
-
-// Services Pages
-import Services from './pages/services/index';
-import CreateService from './pages/services/create/index';
-import EditService from './pages/services/edit/[id]';
-
-// Blog Pages
-import Posts from './pages/blog/index';
-import CreatePost from './pages/blog/create/index';
-import EditPost from './pages/blog/edit/[id]';
-
-// Other Pages
-import Reviews from './pages/reviews/Reviews';
-import Messages from './pages/messages/Messages';
-import Settings from './pages/settings/Settings';
+import { Categories } from './pages/categories/Categories';
+import { Blogs } from './pages/blogs/Blogs';
+import { CreateBlog } from './pages/blogs/CreateBlog';
+import { EditBlog } from './pages/blogs/EditBlog';
 import NotFound from './pages/NotFound';
+import { Services } from './pages/services/Services';
+import Slides from './pages/slides/Slides';
+import WebSettings from './pages/web-settings/WebSettings';
 
 // Auth context and hooks
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -65,6 +58,40 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       
+
+      
+      <Route path="/categories" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <Categories />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/blogs" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <Blogs />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/blogs/create" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <CreateBlog />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/blogs/:id/edit" element={
+        <ProtectedRoute>
+          <MainLayout>
+            <EditBlog />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
       <Route path="/services" element={
         <ProtectedRoute>
           <MainLayout>
@@ -73,66 +100,18 @@ function AppRoutes() {
         </ProtectedRoute>
       } />
       
-      <Route path="/services/create" element={
+      <Route path="/slides" element={
         <ProtectedRoute>
           <MainLayout>
-            <CreateService />
+            <Slides />
           </MainLayout>
         </ProtectedRoute>
       } />
       
-      <Route path="/services/edit/:id" element={
+      <Route path="/web-settings" element={
         <ProtectedRoute>
           <MainLayout>
-            <EditService />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/blog" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Posts />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/blog/create" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <CreatePost />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/blog/edit/:id" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <EditPost />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/reviews" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Reviews />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/messages" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Messages />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/settings" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <Settings />
+            <WebSettings />
           </MainLayout>
         </ProtectedRoute>
       } />
@@ -144,10 +123,14 @@ function AppRoutes() {
 }
 
 function App() {
+  const queryClient = new QueryClient();
+
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
