@@ -11,9 +11,9 @@ import { useMediaQuery } from '@mantine/hooks';
 
 const LANGS = [
   { value: 'vi', label: 'Tiếng Việt' },
-  { value: 'en', label: 'English' },
-  { value: 'ko', label: '한국어' },
-  { value: 'zh', label: '中文' },
+  { value: 'en', label: 'Tiếng Anh' },
+  { value: 'ko', label: 'Tiếng Hàn' },
+  { value: 'zh', label: 'Tiếng Trung' },
 ];
 
 function slugify(str: string) {
@@ -51,11 +51,11 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
   const form = useForm<IService>({
     initialValues: {
       name: service?.name || '',
-      duration: service?.duration || 1,
+      duration: service?.duration || 0,
       coverImage: service?.coverImage || '',
       categoryId: service?.categoryId || '',
-      price: service?.price || 1,
-      discount: service?.discount || 1,
+      price: service?.price || 0,
+      discount: service?.discount || 0,
     },
   });
 
@@ -72,11 +72,11 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
     if (service) {
       form.setValues({
         name: service.name,
-        duration: service.duration || 1,
+        duration: service.duration || 0,
         coverImage: service.coverImage,
         categoryId: service.categoryId,
-        price: service.price || 1,
-        discount: service.discount || 1,
+        price: service.price || 0,
+        discount: service.discount || 0,
       });
       setTranslations(
         service.translations
@@ -152,8 +152,8 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
         name,
         slug,
         description,
-        duration: Number(values.duration) || 1,
-        price: 1, // Default value since backend requires it
+        duration: Number(values.duration) || 0,
+        price: Number(values.price) || 0,
         coverImage: values.coverImage || '',
         categoryId: values.categoryId,
         translations: translationsToSend,
@@ -175,7 +175,7 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
   };
 
   return (
-    <Modal opened={opened} onClose={() => onClose()} title={service ? 'Sửa dịch vụ' : 'Thêm dịch vụ'}>
+    <Modal opened={opened} onClose={() => onClose()} title={service ? 'Sửa dịch vụ' : 'Thêm dịch vụ'} size="lg">
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
           <Tabs value={activeLang} onChange={(val) => setActiveLang(val as string)}>
@@ -215,6 +215,24 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
             {...form.getInputProps('categoryId')}
             style={isMobile ? { width: '100%' } : {}}
           />
+
+          <Group grow>
+            <TextInput
+              label="Thời lượng (phút)"
+              type="number"
+              min={0}
+              {...form.getInputProps('duration')}
+              style={isMobile ? { width: '100%' } : {}}
+            />
+            <TextInput
+              label="Giá"
+              type="number"
+              min={0}
+              {...form.getInputProps('price')}
+              style={isMobile ? { width: '100%' } : {}}
+            />
+          </Group>
+
           <ImageUpload 
             onChange={handleImageChange} 
             uploading={uploading}

@@ -63,7 +63,13 @@ export const serviceService = {
 
   // Lấy danh sách service detail theo serviceId
   getDetailsByServiceId: async (serviceId: string) => {
-    const response = await axiosInstance.get('/services/details/'+serviceId);
+    const response = await axiosInstance.get('/services/'+serviceId);
+    return response.data;
+  },
+
+  // Cập nhật service detail
+  updateServiceDetail: async (id: string, data: Partial<Omit<IServiceDetail, 'id'>>) => {
+    const response = await axiosInstance.put(`/services/details/${id}`, data);
     return response.data;
   },
 };

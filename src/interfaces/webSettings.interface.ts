@@ -13,4 +13,6 @@ export interface IWebSettings {
   telegram?: string;
   wechat?: string;
   line?: string;
+  whatsapp?: string;
+  instagram?: string;
 } 

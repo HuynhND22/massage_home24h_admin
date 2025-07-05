@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TextInput, Button, Group, Stack, Textarea, Paper } from '@mantine/core';
+import { TextInput, Button, Group, Stack, Box, Textarea, Image, Paper } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IWebSettings } from '../../interfaces/webSettings.interface';
 import { webSettingsService } from '../../services/webSettings.service';
@@ -9,7 +9,7 @@ import { useMediaQuery } from '@mantine/hooks';
 
 export function WebSettingsForm() {
   const [loading, setLoading] = useState(false);
-  const [logoUploading] = useState(false);
+  const [logoUploading, setLogoUploading] = useState(false);
   const [webSettingsId, setWebSettingsId] = useState<string | undefined>(undefined);
   const isMobile = useMediaQuery('(max-width: 600px)');
 
@@ -29,6 +29,8 @@ export function WebSettingsForm() {
       wechat: '',
       line: '',
       logoFile: undefined,
+      whatsapp: '',
+      instagram: '',
     },
   });
 
@@ -57,6 +59,8 @@ export function WebSettingsForm() {
             wechat: s.wechat || '',
             line: s.line || '',
             logoFile: undefined,
+            whatsapp: s.whatsapp || '',
+            instagram: s.instagram || '',
           });
         }
       } catch (e) {
@@ -109,6 +113,8 @@ export function WebSettingsForm() {
           <TextInput label="Telegram" {...form.getInputProps('telegram')} style={isMobile ? { width: '100%' } : {}} />
           <TextInput label="WeChat" {...form.getInputProps('wechat')} style={isMobile ? { width: '100%' } : {}} />
           <TextInput label="Line" {...form.getInputProps('line')} style={isMobile ? { width: '100%' } : {}} />
+          <TextInput label="WhatsApp" {...form.getInputProps('whatsapp')} style={isMobile ? { width: '100%' } : {}} />
+          <TextInput label="Instagram" {...form.getInputProps('instagram')} style={isMobile ? { width: '100%' } : {}} />
           <Group justify="flex-end" style={isMobile ? { flexDirection: 'column', gap: 8 } : {}}>
             <Button type="submit" loading={loading} fullWidth={isMobile}>Lưu</Button>
           </Group>
@@ -116,4 +122,4 @@ export function WebSettingsForm() {
       </form>
     </Paper>
   );
-}
+} 

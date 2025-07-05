@@ -92,9 +92,9 @@ export function Services() {
   };
 
   return (
-    <Container size="xl">
-      <Title order={2} mb="xl">Quản lý dịch vụ</Title>
-      <Group justify="flex-end" mb="md">
+    <Container size="lg">
+      <Title order={2} mb="lg">Quản lý dịch vụ</Title>
+      <Group justify="flex-end" mb="lg">
         <Button 
           leftSection={<IconTrash size={16} />}
           color="gray"
