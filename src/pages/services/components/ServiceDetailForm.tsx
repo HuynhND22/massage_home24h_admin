@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, TextInput, Button, Group, Stack, Select, Tabs } from '@mantine/core';
+import { Modal, TextInput, Button, Group, Stack, Tabs } from '@mantine/core';
 import { RichTextEditor, Link } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
 import { useEditor as useTiptapEditor } from '@tiptap/react';
@@ -107,7 +107,6 @@ const ServiceDetailForm: React.FC<ServiceDetailFormProps> = ({ opened, onClose, 
   };
 
   useEffect(() => {
-    let ignore = false;
     async function fetchDetails() {
       if (opened && serviceId) {
         setLoading(true);
@@ -161,7 +160,7 @@ const ServiceDetailForm: React.FC<ServiceDetailFormProps> = ({ opened, onClose, 
       setError(null);
     }
     fetchDetails();
-    return () => { ignore = true; };
+    return () => { true };
     // eslint-disable-next-line
   }, [opened, serviceId]);
 
