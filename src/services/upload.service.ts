@@ -1,18 +1,18 @@
 import axiosInstance from '../utils/axiosConfig';
 
+interface UploadResponse {
+  url: string;
+}
+
 export const uploadService = {
-  uploadImage: async (formData: FormData) => {
+  uploadImage: async (formData: FormData): Promise<UploadResponse> => {
     try {
       const response = await axiosInstance.post('/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      return {
-        data: {
-          url: response.data.url
-        }
-      };
+      return response.data;
     } catch (error) {
       console.error('Upload error:', error);
       throw error;
@@ -24,7 +24,7 @@ export const uploadService = {
       const response = await axiosInstance.delete('/upload', {
         data: { fileUrl }
       });
-      return response;
+      return response.data;
     } catch (error) {
       console.error('Delete error:', error);
       throw error;

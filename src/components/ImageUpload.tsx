@@ -7,16 +7,19 @@ interface ImageUploadProps {
   onChange?: (file: File | null) => void;
   uploading?: boolean;
   initialImage?: string | null;
+  label?: string;
 }
 
-export function ImageUpload({ onChange, uploading, initialImage }: ImageUploadProps) {
-  const [preview, setPreview] = useState<string | null>(initialImage || null);
-  // const [selectedFile, setSelectedFile] = useState<File | null>(null);
+export function ImageUpload({ onChange, uploading, initialImage, label }: ImageUploadProps) {
+  const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPreview(initialImage || null);
+  }, [initialImage]);
 
   const onDrop = (files: FileWithPath[]) => {
     const file = files[0];
     if (file) {
-      // setSelectedFile(file);
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
       onChange?.(file);
@@ -24,18 +27,16 @@ export function ImageUpload({ onChange, uploading, initialImage }: ImageUploadPr
   };
 
   const handleRemove = () => {
-    if (preview) {
+    if (preview && !preview.startsWith('http')) {
       URL.revokeObjectURL(preview);
     }
     setPreview(null);
-    // setSelectedFile(null);
     onChange?.(null);
   };
 
-  // Cleanup object URL when component unmounts
   useEffect(() => {
     return () => {
-      if (preview) {
+      if (preview && !preview.startsWith('http')) {
         URL.revokeObjectURL(preview);
       }
     };
@@ -43,6 +44,7 @@ export function ImageUpload({ onChange, uploading, initialImage }: ImageUploadPr
 
   return (
     <div>
+      {label && <Text size="sm" fw={500} mb={5}>{label}</Text>}
       {uploading ? (
         <Center mih={120}>
           <Loader size="md" />

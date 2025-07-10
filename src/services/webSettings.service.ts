@@ -13,11 +13,11 @@ export const webSettingsService = {
   create: async (data: Partial<IWebSettings> & { logoFile?: File }) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
-      if (value) {
+      if (value !== undefined) {
         if (key === 'logoFile' && value instanceof File) {
           formData.append('logo', value);
         } else if (key !== 'logoFile') {
-          formData.append(key, value as string);
+          formData.append(key, value === null ? '' : value as string);
         }
       }
     });
@@ -29,11 +29,11 @@ export const webSettingsService = {
   update: async (id: string, data: Partial<IWebSettings> & { logoFile?: File }) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
-      if (value) {
+      if (value !== undefined) {
         if (key === 'logoFile' && value instanceof File) {
           formData.append('logo', value);
         } else if (key !== 'logoFile') {
-          formData.append(key, value as string);
+          formData.append(key, value === null ? '' : value as string);
         }
       }
     });

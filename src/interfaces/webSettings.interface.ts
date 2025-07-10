@@ -7,12 +7,20 @@ export interface IWebSettings {
   googleMap?: string;
   email?: string;
   phone?: string;
-  facebook?: string;
+  messenger?: string;
+  messengerQr?: string;
   zalo?: string;
+  zaloQr?: string;
   kakaotalk?: string;
+  kakaotalkQr?: string;
   telegram?: string;
+  telegramQr?: string;
   wechat?: string;
+  wechatQr?: string;
   line?: string;
+  lineQr?: string;
   whatsapp?: string;
+  whatsappQr?: string;
   instagram?: string;
+  instagramQr?: string;
 } 

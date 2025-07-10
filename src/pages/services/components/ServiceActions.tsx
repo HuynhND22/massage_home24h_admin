@@ -13,6 +13,34 @@ export function ServiceActions({ service, onEdit, onRefresh }: ServiceActionsPro
   const isMobile = useMediaQuery('(max-width: 600px)');
   const [openDetailForm, setOpenDetailForm] = React.useState(false);
   const [openView, setOpenView] = React.useState(false);
+
+  const handleOpenInApp = () => {
+    const deepLink = `massage24h://service/${service.id}`;
+    const webLink = `/services/${service.id}`;
+    
+    // Check if on mobile
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      // Create iframe for deep link
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = deepLink;
+      document.body.appendChild(iframe);
+      
+      // Remove iframe after attempt
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 500);
+      
+      // Fallback to web link after 1 second if deep link fails
+      setTimeout(() => {
+        window.location.href = webLink;
+      }, 1000);
+    } else {
+      // On desktop, just open web link
+      window.location.href = webLink;
+    }
+  };
+
   const handleDelete = () => {
     modals.openConfirmModal({
       title: 'Xác nhận xóa',
@@ -35,7 +63,7 @@ export function ServiceActions({ service, onEdit, onRefresh }: ServiceActionsPro
     <>
       <Group gap={isMobile ? 4 : 'xs'}>
         <Tooltip label="Xem chi tiết">
-          <ActionIcon color="gray" onClick={() => setOpenView(true)} size={isMobile ? 'md' : 'sm'}>
+          <ActionIcon color="gray" onClick={handleOpenInApp} size={isMobile ? 'md' : 'sm'}>
             <IconEye size={18} />
           </ActionIcon>
         </Tooltip>
