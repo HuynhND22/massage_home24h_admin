@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TextInput, Button, Group, Stack, Textarea, Paper, Grid, Image, Text } from '@mantine/core';
+import { TextInput, Button, Group, Stack, Textarea, Paper, Grid, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IWebSettings } from '../../interfaces/webSettings.interface';
 import { webSettingsService } from '../../services/webSettings.service';
@@ -34,7 +34,6 @@ export function WebSettingsForm() {
   const [webSettingsId, setWebSettingsId] = useState<string | undefined>(undefined);
   const isMobile = useMediaQuery('(max-width: 600px)');
   const [uploadingQr, setUploadingQr] = useState<{ [key: string]: boolean }>({});
-  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   // Thêm state để lưu trữ thông tin ảnh cần xóa
   const [pendingDeleteImages, setPendingDeleteImages] = useState<{[key: string]: string}>({});
 

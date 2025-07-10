@@ -30,7 +30,7 @@ export const categoryService = {
       const formData = new FormData();
       formData.append('file', data.imageFile);
       const uploadResponse = await uploadService.uploadImage(formData);
-      coverImage = uploadResponse.data.url;
+      coverImage = uploadResponse.url;
     }
 
     // Lấy translation tiếng Việt hoặc đầu tiên
@@ -59,7 +59,7 @@ export const categoryService = {
       const formData = new FormData();
       formData.append('file', data.imageFile);
       const uploadResponse = await uploadService.uploadImage(formData);
-      coverImage = uploadResponse.data.url;
+      coverImage = uploadResponse.url;
     }
     // Lấy translation tiếng Việt hoặc đầu tiên
     const viTranslation = (data.translations || []).find(t => t.language === 'vi') || data.translations?.[0] || { name: '', description: '' };

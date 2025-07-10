@@ -111,7 +111,7 @@ export function ServiceForm({ opened, onClose, service }: ServiceFormProps) {
       const formData = new FormData();
       formData.append('file', file);
       const res = await uploadService.uploadImage(formData);
-      form.setFieldValue('coverImage', res.data.url);
+      form.setFieldValue('coverImage', res.url);
     } catch (err) {
       console.log(err);
       throw err;

@@ -65,8 +65,8 @@ export const blogService = {
         const uploadResponse = await uploadService.uploadImage(formData);
         console.log('Upload response:', uploadResponse);
         // 3. Lấy URL từ response và gán vào coverImage
-        if (uploadResponse?.data?.url) {
-          coverImage = uploadResponse.data.url;
+        if (uploadResponse?.url) {
+          coverImage = uploadResponse.url;
           console.log('Cover image URL:', coverImage);
         }
       }
@@ -137,8 +137,8 @@ export const blogService = {
         const uploadResponse = await uploadService.uploadImage(formData);
         console.log('Upload response:', uploadResponse);
         // 4. Lấy URL từ response và gán vào coverImage
-        if (uploadResponse?.data?.url) {
-          coverImage = uploadResponse.data.url;
+        if (uploadResponse?.url) {
+          coverImage = uploadResponse.url;
           console.log('Cover image URL:', coverImage);
         }
       }

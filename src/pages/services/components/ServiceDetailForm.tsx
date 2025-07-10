@@ -84,7 +84,7 @@ const ServiceDetailForm: React.FC<ServiceDetailFormProps> = ({ opened, onClose, 
       const formData = new FormData();
       formData.append('file', file);
       const res = await uploadService.uploadImage(formData);
-      editor.chain().focus().setImage({ src: res.data.url }).run();
+      editor.chain().focus().setImage({ src: res.url }).run();
       notifications.show({
         title: 'Thành công',
         message: 'Đã tải lên ảnh',
